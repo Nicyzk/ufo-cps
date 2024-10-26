@@ -85,7 +85,7 @@ def resize_cpus_ufo(required_cpu_count):
             os.system(f"echo 0 | sudo tee /sys/devices/system/cpu/cpu{i}/online")
             delta+=1
     
-    balance_all_irq_affinity()
+    balance_all_irq_affinity(current_cpu_list)
     print("online cpu list (after change)", online_cpu_list())
 
 
@@ -119,7 +119,7 @@ def resize_cpus_cps(required_cpu_count):
             print(f"Could not set CPU affinity for PID {p.pid}: {e}")
         print(f"set affinity for pid {p.pid}")
     
-    balance_all_irq_affinity()
+    balance_all_irq_affinity(resized_cpu_list)
     print("online cpu list (after change)", resized_cpu_list)
 
 if __name__ == "__main__":
