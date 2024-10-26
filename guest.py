@@ -131,7 +131,7 @@ if __name__ == "__main__":
     s.connect((CID, PORT))
     print("total available CPU count:", CPU_COUNT)
     print("online CPUs:", online_cpu_list())
-    print(IRQ_LIST)
+    print("IRQ list : ", IRQ_LIST)
     while True:
         data = s.recv(1024)
         print("Received from server:", data.decode())
