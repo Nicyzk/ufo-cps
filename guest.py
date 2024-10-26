@@ -58,7 +58,7 @@ def balance_all_irq_affinity(cpu_list):
         
     # Set new mask for IRQ
     for irq in IRQ_LIST :
-        os.system(f"echo {affinity_mask} | sudo tee /proc/irq/{irq}/smp_affinity")
+        os.system(f"echo {affinity_mask} | sudo tee /proc/irq/{irq}/smp_affinity > /dev/null")
     
 
 def resize_cpus_ufo(required_cpu_count):
@@ -85,7 +85,7 @@ def resize_cpus_ufo(required_cpu_count):
             os.system(f"echo 0 | sudo tee /sys/devices/system/cpu/cpu{i}/online")
             delta+=1
     
-    balance_all_irq_affinity(current_cpu_list)
+    balance_all_irq_affinity(online_cpu_list())
     print("online cpu list (after change)", online_cpu_list())
 
 
