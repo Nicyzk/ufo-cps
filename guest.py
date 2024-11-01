@@ -6,6 +6,7 @@ import os
 import psutil
 import subprocess
 import sys
+import datetime
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
@@ -78,14 +79,13 @@ def resize_cpus_ufo(required_cpu_count):
             break
 
         if delta > 0 and i not in current_cpu_list:
-            os.system(f"echo 1 | sudo tee /sys/devices/system/cpu/cpu{i}/online")
+            os.system(f"echo 1 | sudo tee /sys/devices/system/cpu/cpu{i}/online") 
             delta-=1
 
         if delta < 0 and i in current_cpu_list:
             os.system(f"echo 0 | sudo tee /sys/devices/system/cpu/cpu{i}/online")
             delta+=1
-    
-    balance_all_irq_affinity(online_cpu_list())
+
     print("online cpu list (after change)", online_cpu_list())
 
 
@@ -100,7 +100,8 @@ def resize_cpus_cps(required_cpu_count):
 
     # delta is number of cpu cores you want to add
     delta = required_cpu_count - current_cpu_count
-    
+ 
+    start = datetime.datetime.now()
     resized_cpu_list = current_cpu_list.copy()
     if delta < 0:
         resized_cpu_list = resized_cpu_list[:len(resized_cpu_list)-abs(delta)]
@@ -119,7 +120,13 @@ def resize_cpus_cps(required_cpu_count):
             print(f"Could not set CPU affinity for PID {p.pid}: {e}")
         print(f"set affinity for pid {p.pid}")
     
+    end = datetime.datetime.now()
+    print(f"Time taken to task set: {str(end-start)}")
+
+    start = datetime.datetime.now()
     balance_all_irq_affinity(resized_cpu_list)
+    end = datetime.datetime.now()
+    print(f"Time taken for irq: {str(end-start)}")
     print("online cpu list (after change)", resized_cpu_list)
 
 if __name__ == "__main__":
@@ -136,10 +143,14 @@ if __name__ == "__main__":
         data = s.recv(1024)
         print("Received from server:", data.decode())
         required_cpu_count = int(data)
+        
+        start_time = datetime.datetime.now()
 
         if sys.argv[1] == "ufo":
             resize_cpus_ufo(required_cpu_count)
         elif sys.argv[1] == "cps":
             resize_cpus_cps(required_cpu_count)
-
-        s.sendall(b"resized (?)")
+        
+        end_time = datetime.datetime.now()
+        time_delta = str(end_time - start_time)
+        s.sendall(f"resized in time: ({time_delta})".encode('utf-8'))
