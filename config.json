@@ -1,0 +1,29 @@
+{
+    "init_core_cnt" : 4,
+    "prob_dist": "uniform",
+    "slices": [
+        {
+            "type": "repeater",
+	    "cnt": 10, // repeats the slices variable {cnt} times
+	    "slices": [
+	        {
+		    "type": "time_slice",
+		    "interval": [1000, 4000], // picks from ~Unif(a,b)
+		    "delta": 1 // increase core count by 1.
+		}, 
+		{
+		    "type": "repeater",
+		    "cnt": 2,
+		    "slices": [...]
+		}
+	}
+    ]
+}
+
+/***
+Explanation: 
+1. The `prob_dist` field tells us how to select a time value from the `interval` in the `time_slice` object
+2. An object with `repeater` type can repeat the internal slice variable {cnt} times.
+This allows us to flexibility create a repeating step function pattern e.g. +1,+1,-1,-1,+1,+1,
+3. An object with `time_slice` represents a time slice or step in the step function.
+***/
