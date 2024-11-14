@@ -26,4 +26,8 @@ Explanation:
 2. An object with `repeater` type can repeat the internal slice variable {cnt} times.
 This allows us to flexibility create a repeating step function pattern e.g. +1,+1,-1,-1,+1,+1,
 3. An object with `time_slice` represents a time slice or step in the step function.
+
+
+Questions:
+1. To clarify implementation details: Should we 1) set up host and guest vm connection 2) run the benchmark script which communicates with the host via message passing?
 ***/
