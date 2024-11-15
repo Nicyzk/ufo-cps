@@ -1,0 +1,23 @@
+{
+    "init_core_cnt" : 4,
+    "prob_dist": "uniform",
+    "slices": [
+        {
+            "type": "repeater",
+	    "cnt": 10,
+	    "slices": [
+	        {
+		    "type": "time_slice",
+		    "interval": [2000, 4000],
+		    "delta": -2
+		}, 
+		{
+		    "type": "time_slice",
+		    "interval": [2000, 4000],
+		    "delta": 2
+		}
+	    ]
+	}
+    ]
+}
+
