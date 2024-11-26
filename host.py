@@ -6,10 +6,13 @@ import json
 import random
 import time
 from datetime import datetime
+import pytz
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
 CURR_CORE_CNT = -1 # TODO: Temp variable to be handled better
+utc = pytz.timezone("UTC")
+est = pytz.timezone("America/New_York")
 
 
 def run_cli():
@@ -25,10 +28,14 @@ def run_cli():
 def change_vcpu_cnt_sim(delta, log_fd): 
     global CURR_CORE_CNT
     CURR_CORE_CNT += delta
-    log_fd.write(f"Before change to {CURR_CORE_CNT} : {datetime.now()}\n")
+    utc_localized = utc.localize(datetime.now())
+    est_time = utc_localized.astimezone(est)
+    log_fd.write(f"Before change to {CURR_CORE_CNT} : {est_time}\n")
     conn.sendall(str(CURR_CORE_CNT).encode())
     buf = conn.recv(64)
-    log_fd.write(f"After change to {CURR_CORE_CNT} : {datetime.now()}\n")
+    utc_localized = utc.localize(datetime.now())
+    est_time = utc_localized.astimezone(est)
+    log_fd.write(f"After change to {CURR_CORE_CNT} : {est_time}\n")
     log_fd.write(f"{str(CURR_CORE_CNT)}, {buf.decode('utf-8')}\n")
     print(f"guest vm vcpu count changed to: {CURR_CORE_CNT} in {buf.decode('utf-8')}")
 
