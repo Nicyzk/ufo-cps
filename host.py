@@ -5,10 +5,14 @@ import argparse
 import json
 import random
 import time
+from datetime import datetime
+import pytz
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
 CURR_CORE_CNT = -1 # TODO: Temp variable to be handled better
+utc = pytz.timezone("UTC")
+est = pytz.timezone("America/New_York")
 
 
 def run_cli():
@@ -24,9 +28,15 @@ def run_cli():
 def change_vcpu_cnt_sim(delta, log_fd): 
     global CURR_CORE_CNT
     CURR_CORE_CNT += delta
+    utc_localized = utc.localize(datetime.now())
+    est_time = utc_localized.astimezone(est)
+    log_fd.write(f"Before change to {CURR_CORE_CNT} : {est_time}\n")
     conn.sendall(str(CURR_CORE_CNT).encode())
     buf = conn.recv(64)
-    log_fd.write(f"{str(CURR_CORE_CNT)}, {buf.decode('utf-8')}")
+    utc_localized = utc.localize(datetime.now())
+    est_time = utc_localized.astimezone(est)
+    log_fd.write(f"After change to {CURR_CORE_CNT} : {est_time}\n")
+    log_fd.write(f"{str(CURR_CORE_CNT)}, {buf.decode('utf-8')}\n")
     print(f"guest vm vcpu count changed to: {CURR_CORE_CNT} in {buf.decode('utf-8')}")
 
 
@@ -38,7 +48,7 @@ def sim_slices(slices, log_fd):
                 sim_slices(slice["slices"], log_fd)
         elif slice["type"] == "time_slice":
                 change_vcpu_cnt_sim(slice["delta"], log_fd)
-                rand_time_ms = random.uniform(slice["interval"][0], slice["interval"][1])
+                rand_time_ms =slice["interval"][0]
                 time.sleep(rand_time_ms/1000)
 
 def run_sim(config_file, log_file, conn):
