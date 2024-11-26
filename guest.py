@@ -7,9 +7,36 @@ import psutil
 import subprocess
 import sys
 import datetime
+import threading
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
+
+def run_sysbench():
+    command = "sudo sysbench cpu --time=100 --threads=8 --report-interval=1 run | ts '[%Y-%m-%d %H:%M:%S]'"
+    
+    # Run the command in a subprocess
+    process = subprocess.Popen(
+        command,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+
+    # Capture and process the output
+    print("Sysbench is running in the background...")
+    for line in process.stdout:
+        print(line.strip())  # Output each line (can be logged or stored)
+
+    # Wait for the process to finish
+    process.wait()
+
+    # Check for errors
+    if process.returncode != 0:
+        print(f"Error: {process.stderr.read().strip()}")
+    else:
+        print("Sysbench completed successfully.")
 
 # Includes both online and offline cpus
 def get_cpu_count():
@@ -133,6 +160,13 @@ if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in ["ufo", "cps"]:
         print("Usage: First activate a virtual env. Then run: sudo $(which python3) guest.py ufo||cps")
         sys.exit(1)
+
+    if len(sys.argv) == 3 and sys.argv[2] != "sysbench" :
+        print("Usage: $(which python3) guest.py ufo||cps sysbench||NULL")
+        sys.exit(1)
+    if len(sys.argv) == 3 :
+        sysbench_thread = threading.Thread(target=run_sysbench, daemon=True)
+        sysbench_thread.start()
 
     s = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
     s.connect((CID, PORT))

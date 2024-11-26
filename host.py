@@ -5,6 +5,7 @@ import argparse
 import json
 import random
 import time
+from datetime import datetime
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
@@ -24,9 +25,11 @@ def run_cli():
 def change_vcpu_cnt_sim(delta, log_fd): 
     global CURR_CORE_CNT
     CURR_CORE_CNT += delta
+    log_fd.write(f"Before change to {CURR_CORE_CNT} : {datetime.now()}\n")
     conn.sendall(str(CURR_CORE_CNT).encode())
     buf = conn.recv(64)
-    log_fd.write(f"{str(CURR_CORE_CNT)}, {buf.decode('utf-8')}")
+    log_fd.write(f"After change to {CURR_CORE_CNT} : {datetime.now()}\n")
+    log_fd.write(f"{str(CURR_CORE_CNT)}, {buf.decode('utf-8')}\n")
     print(f"guest vm vcpu count changed to: {CURR_CORE_CNT} in {buf.decode('utf-8')}")
 
 
