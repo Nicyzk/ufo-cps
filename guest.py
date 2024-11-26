@@ -14,29 +14,29 @@ PORT = 9999
 
 def run_sysbench():
     command = "sudo sysbench cpu --time=100 --threads=8 --report-interval=1 run | ts '[%Y-%m-%d %H:%M:%S]'"
-    
-    # Run the command in a subprocess
-    process = subprocess.Popen(
-        command,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
+    with open("sysbenchlog.txt", "w") as log_file:
+        # Run the command in a subprocess
+        process = subprocess.Popen(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
 
-    # Capture and process the output
-    print("Sysbench is running in the background...")
-    for line in process.stdout:
-        print(line.strip())  # Output each line (can be logged or stored)
+        # Write the output to the log file
+        log_file.write("Sysbench is running in the background...\n")
+        for line in process.stdout:
+            log_file.write(line)  # Write each line to the file
 
-    # Wait for the process to finish
-    process.wait()
+        # Wait for the process to finish
+        process.wait()
 
-    # Check for errors
-    if process.returncode != 0:
-        print(f"Error: {process.stderr.read().strip()}")
-    else:
-        print("Sysbench completed successfully.")
+        # Log errors, if any
+        if process.returncode != 0:
+            log_file.write(f"Error: {process.stderr.read().strip()}\n")
+        else:
+            log_file.write("Sysbench completed successfully.\n")
 
 # Includes both online and offline cpus
 def get_cpu_count():
