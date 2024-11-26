@@ -8,12 +8,12 @@
 	    "slices": [
 	        {
 		    "type": "time_slice",
-		    "interval": [2000, 4000],
+		    "interval": [5000, 4000],
 		    "delta": -4
 		}, 
 		{
 		    "type": "time_slice",
-		    "interval": [2000, 4000],
+		    "interval": [5000, 4000],
 		    "delta": 4
 		}
 	    ]

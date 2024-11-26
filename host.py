@@ -41,7 +41,7 @@ def sim_slices(slices, log_fd):
                 sim_slices(slice["slices"], log_fd)
         elif slice["type"] == "time_slice":
                 change_vcpu_cnt_sim(slice["delta"], log_fd)
-                rand_time_ms = random.uniform(slice["interval"][0], slice["interval"][1])
+                rand_time_ms =slice["interval"][0]
                 time.sleep(rand_time_ms/1000)
 
 def run_sim(config_file, log_file, conn):
