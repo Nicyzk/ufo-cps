@@ -15,7 +15,7 @@ utc = pytz.timezone("UTC")
 est = pytz.timezone("America/New_York")
 
 
-def run_cli():
+def run_cli(conn):
     while True:
         msg = input("insert number of pcpus allocated to guest vm: ")
         conn.sendall(msg.encode())
@@ -25,7 +25,7 @@ def run_cli():
 
         print(f"Received response: {buf}")
 
-def change_vcpu_cnt_sim(delta, log_fd): 
+def change_vcpu_cnt_sim(delta, log_fd, conn): 
     utc_localized = utc.localize(datetime.now())
     est_time = utc_localized.astimezone(est)
     log_fd.write(f"Before change to {delta} : {est_time}\n")
@@ -38,14 +38,14 @@ def change_vcpu_cnt_sim(delta, log_fd):
     print(f"guest vm vcpu count changed to: {delta} in {buf.decode('utf-8')}")
 
 
-def sim_slices(slices, log_fd):
+def sim_slices(slices, log_fd, conn):
     for slice in slices:
         if slice["type"] == "repeater":
             cnt = slice["cnt"]
             for i in range(cnt):
-                sim_slices(slice["slices"], log_fd)
+                sim_slices(slice["slices"], log_fd, conn)
         elif slice["type"] == "time_slice":
-                change_vcpu_cnt_sim(slice["delta"], log_fd)
+                change_vcpu_cnt_sim(slice["delta"], log_fd, conn)
                 rand_time_ms =slice["interval"][0]
                 time.sleep(rand_time_ms/1000)
 
@@ -62,7 +62,7 @@ def run_sim(config_file, log_file, conn):
     buf = conn.recv(64)
     print(f"guest vm vcpu count initialized to {core_cnt} in {buf.decode('utf-8')}")
 
-    sim_slices(config["slices"], log_fd)
+    sim_slices(config["slices"], log_fd ,conn)
 
 
 if __name__ == "__main__":
@@ -79,12 +79,12 @@ if __name__ == "__main__":
     s.bind((CID, PORT))
     s.listen()
     while True:
-        (conn, (remote_cid, remote_port)) = s.accept()
+        conn, (remote_cid, remote_port) = s.accept()
         # print(f"Connection opened by cid={remote_cid} port={remote_port}. Press any key to continue...")
         # input()
-        client_thread = threading.Thread(target=run_cli, daemon=True)
+        client_thread = threading.Thread(target=run_cli,args=(conn), daemon=True)
         if args.mode == "cli":
-            client_thread = threading.Thread(target=run_cli, daemon=True)
+            client_thread = threading.Thread(target=run_cli,args=(conn), daemon=True)
         elif args.mode == "sim":
             client_thread = threading.Thread(target=run_sim,args=(args.config_file,args.log_file,conn), daemon=True)
         client_thread.start()
