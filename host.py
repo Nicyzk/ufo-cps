@@ -89,5 +89,5 @@ if __name__ == "__main__":
         if args.mode == "cli":
             client_thread = threading.Thread(target=run_cli,deamon=True)
         elif args.mode == "sim":
-            client_thread = threading.Thread(target=run_sim,args=(args.config_file,args.log_file,conn)deamon=True)
+            client_thread = threading.Thread(target=run_sim,args=(args.config_file,args.log_file,conn),deamon=True)
         client_thread.start()
