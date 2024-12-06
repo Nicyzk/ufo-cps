@@ -27,6 +27,7 @@ def run_cli(conn):
         print(f"Received response: {buf}")
 
 def change_vcpu_cnt_sim(delta, log_fd, conn): 
+    global total_virtual_cores
     utc_localized = utc.localize(datetime.now())
     est_time = utc_localized.astimezone(est)
     with lock :
@@ -57,6 +58,7 @@ def sim_slices(slices, log_fd, conn):
                 time.sleep(rand_time_ms/1000)
 
 def run_sim(config_file, log_file, conn):
+    global total_virtual_cores
     config_fd = open(config_file, "r")
     log_fd = open(log_file, "a")
 
