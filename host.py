@@ -11,7 +11,6 @@ import threading
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
-CURR_CORE_CNT = -1 # TODO: Temp variable to be handled better
 utc = pytz.timezone("UTC")
 est = pytz.timezone("America/New_York")
 
@@ -27,18 +26,16 @@ def run_cli():
         print(f"Received response: {buf}")
 
 def change_vcpu_cnt_sim(delta, log_fd): 
-    global CURR_CORE_CNT
-    CURR_CORE_CNT += delta
     utc_localized = utc.localize(datetime.now())
     est_time = utc_localized.astimezone(est)
-    log_fd.write(f"Before change to {CURR_CORE_CNT} : {est_time}\n")
-    conn.sendall(str(CURR_CORE_CNT).encode())
+    log_fd.write(f"Before change to {delta} : {est_time}\n")
+    conn.sendall(str(delta).encode())
     buf = conn.recv(64)
     utc_localized = utc.localize(datetime.now())
     est_time = utc_localized.astimezone(est)
-    log_fd.write(f"After change to {CURR_CORE_CNT} : {est_time}\n")
-    log_fd.write(f"{str(CURR_CORE_CNT)}, {buf.decode('utf-8')}\n")
-    print(f"guest vm vcpu count changed to: {CURR_CORE_CNT} in {buf.decode('utf-8')}")
+    log_fd.write(f"After change to {delta} : {est_time}\n")
+    log_fd.write(f"{str(delta)}, {buf.decode('utf-8')}\n")
+    print(f"guest vm vcpu count changed to: {delta} in {buf.decode('utf-8')}")
 
 
 def sim_slices(slices, log_fd):
@@ -60,11 +57,10 @@ def run_sim(config_file, log_file, conn):
         
     # TODO: validate config object
 
-    global CURR_CORE_CNT
-    CURR_CORE_CNT = config["init_core_cnt"] # TODO: temp variable
-    conn.sendall(str(CURR_CORE_CNT).encode())
+    core_cnt = config["init_core_cnt"] # TODO: temp variable
+    conn.sendall(str(core_cnt).encode())
     buf = conn.recv(64)
-    print(f"guest vm vcpu count initialized to {CURR_CORE_CNT} in {buf.decode('utf-8')}")
+    print(f"guest vm vcpu count initialized to {core_cnt} in {buf.decode('utf-8')}")
 
     sim_slices(config["slices"], log_fd)
 
