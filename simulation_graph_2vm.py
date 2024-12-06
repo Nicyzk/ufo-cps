@@ -44,6 +44,8 @@ lines = [line for line in cpu_changes.strip().split('\n') if line.strip()]  # Re
 for i in range(0, len(lines), 2):
     before_line = lines[i].split(": ", 1)[1].strip()
     after_line = lines[i + 1].split(": ", 1)[1].strip()
+    before_line = before_line.strip("()")
+    after_line = after_line.strip("()")
     before_time = datetime.fromisoformat(before_line)
     after_time = datetime.fromisoformat(after_line)
     average_time = before_time + (after_time - before_time) / 2
