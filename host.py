@@ -86,9 +86,9 @@ if __name__ == "__main__":
         (conn, (remote_cid, remote_port)) = s.accept()
         # print(f"Connection opened by cid={remote_cid} port={remote_port}. Press any key to continue...")
         # input()
-        client_thread = threading.Thread(target=run_cli,deamon=True)
+        client_thread = threading.Thread(target=run_cli, daemon=True)
         if args.mode == "cli":
-            client_thread = threading.Thread(target=run_cli,deamon=True)
+            client_thread = threading.Thread(target=run_cli, daemon=True)
         elif args.mode == "sim":
-            client_thread = threading.Thread(target=run_sim,args=(args.config_file,args.log_file,conn),deamon=True)
+            client_thread = threading.Thread(target=run_sim,args=(args.config_file,args.log_file,conn), daemon=True)
         client_thread.start()
