@@ -81,11 +81,13 @@ if __name__ == "__main__":
     s = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
     s.bind((CID, PORT))
     s.listen()
-    (conn, (remote_cid, remote_port)) = s.accept()
-    print(f"Connection opened by cid={remote_cid} port={remote_port}. Press any key to continue...")
-    input()
-    
-    if args.mode == "cli":
-        run_cli()
-    elif args.mode == "sim":
-        run_sim(args.config_file, args.log_file, conn)
+    while True:
+        (conn, (remote_cid, remote_port)) = s.accept()
+        # print(f"Connection opened by cid={remote_cid} port={remote_port}. Press any key to continue...")
+        # input()
+        client_thread = threading.Thread(target=run_cli,deamon=True)
+        if args.mode == "cli":
+            client_thread = threading.Thread(target=run_cli,deamon=True)
+        elif args.mode == "sim":
+            client_thread = threading.Thread(target=run_sim,args=(args.config_file,args.log_file,conn)deamon=True)
+        client_thread.start()
