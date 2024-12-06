@@ -9,12 +9,12 @@
 	        {
 		    "type": "time_slice",
 		    "interval": [5000, 4000],
-		    "delta": -2
+		    "delta": 1
 		}, 
 		{
 		    "type": "time_slice",
 		    "interval": [5000, 4000],
-		    "delta": 2
+		    "delta": 3
 		}
 	    ]
 	}
