@@ -1,5 +1,5 @@
 {
-    "init_core_cnt" : 8,
+    "init_core_cnt" : 3,
     "prob_dist": "uniform",
     "slices": [
         {
@@ -9,12 +9,12 @@
 	        {
 		    "type": "time_slice",
 		    "interval": [5000, 4000],
-		    "delta": -4
+		    "delta": -2
 		}, 
 		{
 		    "type": "time_slice",
 		    "interval": [5000, 4000],
-		    "delta": 4
+		    "delta": 2
 		}
 	    ]
 	}
