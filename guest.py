@@ -36,16 +36,21 @@ CPU_COUNT = get_cpu_count()
 IRQ_LIST = get_irq_list()
 
 def online_cpu_list():
+    start_time =time.time()
     path = "/sys/devices/system/cpu/online"
 
     def expand_range(match):
         start = int(match.group(1))
         end = int(match.group(2))
         return ','.join([str(x) for x in list(range(start, end+1))])
-
+    
     with open(path, 'r') as file:
         content = file.read()
-        return [int(x) for x in re.sub(r"(\d+)-(\d+)", expand_range, content).split(",")]
+        ret =  [int(x) for x in re.sub(r"(\d+)-(\d+)", expand_range, content).split(",")]
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(f"online_cpu_list Function execution time: {elapsed_time:.2f} seconds")
+        return ret
 
 def balance_all_irq_affinity(cpu_list):
     # Build affinity mask for the given list of CPU
