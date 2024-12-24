@@ -13,37 +13,13 @@ import subprocess
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
-utc = pytz.timezone("UTC")
-est = pytz.timezone("America/New_York")
-total_virtual_cores = 0 
+CURR_CORE_CNT = -1
 lock = threading.Lock() 
 config = None
 log_fds = None # {<cid>: log_fd, ...}
 conns = None # {<cid>: conn, ....}
 
-def run_command(cmd):
-    try:
-        result = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
-        return result.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        print(f"Error running command: {cmd}\n{e.stderr}", file=sys.stderr)
-
-def run_cli(conn):
-    while True:
-        msg = input("insert number of pcpus allocated to guest vm: ")
-        conn.sendall(msg.encode())
-        buf = conn.recv(64)
-        if not buf:
-            break
-
-        print(f"Received response: {buf}")
-
-def read_config(config_file):
-    global config
-    config_fd = open(config_file, "r")
-    config = json.loads(config_fd.read())
-
-# initializes guest by 1) creating log file handler for vm 2) save conn in a global variable 3) initialize vcpu count for each vm
+# initializes a guest vm
 def init_guest(conn, cid):
     # create log file handler for vm
     global log_fds
@@ -54,7 +30,10 @@ def init_guest(conn, cid):
     global conns
     conns[cid] = conn
 
-    # initialize vcpu count for each vm
+    # initialize pcpu count for vm
+    #TODO
+
+    # initialize vcpu count for vm
     init_vcpu = config[cid]["init_vcpu"]  
     with lock :
         total_virtual_cores += init_vcpu
@@ -62,30 +41,32 @@ def init_guest(conn, cid):
     conn.sendall(str(core_cnt).encode())
 
 
-def get_cpu_list():
-    """Get the list of available CPUs from lscpu."""
-    lscpu_output = run_command("lscpu")
-    for line in lscpu_output.splitlines():
-        if line.startswith("On-line CPU(s) list:"):
-            cpu_range = line.split(":")[1].strip()
-            # Expand ranges like "0-3" to [0, 1, 2, 3]
-            cpus = []
-            for part in cpu_range.split(","):
-                if "-" in part:
-                    start, end = map(int, part.split("-"))
-                    cpus.extend(range(start, end + 1))
-                else:
-                    cpus.append(int(part))
-            return cpus
-    print("Failed to fetch CPU list from the host machine")
-
-
-def assign_cpus_to_vms(cpu_list):
+# this core reallocation occurs at start of simulation and periodically thereafter
+def adjust_pcpu_to_vm_mapping():
     global config
-    total_vms = len(config)
-    total_cpus = len(cpu_list)
-    if total_vms == 0 or total_cpus == 0:
-        print("No VMs or CPUs available for assignment")
+    global vm_assignments
+    global sim_started
+
+    # if the simulation has not started, we should assign pcpus to each vm according to the config file
+    if not sim_started:
+        total_cpus_req = sum(vm["pcpu"] for vm in config)
+        total_cpus = len(cpu_list)
+        if total_vms == 0 or total_cpus == 0:
+            print("No VMs or CPUs available for assignment")
+
+        cpu_idx = 0
+        for vm in config:
+            cpus_req = floor((vm["pcpu"] / total_cpus_req) * total_cpus)
+            vm_assignments.setdefault(vm["vm_cid"], []) = cpu_list[cpu_idx: cpu_idx+cpus_req]
+            cpu_idx += cpus_req
+        
+        return
+
+    # if the simulation has started, we should assign pcpus to each vm according to their current load or max_threads
+    elif sim_started:
+        vm_assignments_new = copy.deepcopy(vm_assignments)
+
+        # calculate total current load
 
     # Calculate fair division of CPUs
     cpu_per_vm = total_cpus // total_vms
@@ -102,16 +83,6 @@ def assign_cpus_to_vms(cpu_list):
         assignments[vm["name"]] = vcpu_pcpu
 
     return assignments
-
-
-def get_vmname_by_cid(config_file, cid):
-    config_fd = open(config_file, "r")
-    config = json.loads(config_fd.read())
-    vm_configs = config.get("vm_configs", [])
-    for vm in vm_configs:
-        if vm.get("cid") == cid:
-            return vm["name"]
-    return None
 
 
 def apply_vcpu_pinning(vm_assignments, vm_name_arg):
@@ -140,13 +111,8 @@ def change_vcpu_cnt_sim(delta, log_fd):
 def adjust_workload(max_threads, percentage_load, cid):
     global log_fds
     log_fd = log_fds[cid]
-    log_fd.write(f"Before change to {total_virtual_cores} : {est_time}\n")
     conn.sendall(f"percentage_load: {str(percentage_load)}".encode())
     buf = conn.recv(64)
-    utc_localized = utc.localize(datetime.now())
-    est_time = utc_localized.astimezone(est)
-    log_fd.write(f"After adjusting workload to {percentage_load} : {est_time}\n")
-
 
 def sim_workload(max_threads, slices, cid):
     for slice in slices:
@@ -156,7 +122,6 @@ def sim_workload(max_threads, slices, cid):
                 sim_slices(max_threads, slice["slices"], cid)
         elif slice["type"] == "time_slice":
                 adjust_workload(max_threads, slice["percentage_load"], cid)
-                
                 time.sleep(slice["interval"]/1000)
 
 
@@ -186,10 +151,12 @@ if __name__ == "__main__":
         run_cli(conn)
     
     # sim program runs according to config file and starts all simulations when all expected guests have connected
-    elif arg.mode == "sim"
-        read_config(args.config_file)
-        client_threads = []
+    elif arg.mode == "sim":
+        global config
+        config_fd = open(config_file, "r")
+        config = json.loads(config_fd.read())
         
+        client_threads = []
         while True:
             init_guest(conn, cid)
             client_thread = threading.Thread(target=run_sim, args=(cid), daemon=True)
