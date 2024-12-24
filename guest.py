@@ -7,6 +7,7 @@ import psutil
 import subprocess
 import sys
 import datetime
+import time
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
