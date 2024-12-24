@@ -1,6 +1,11 @@
 {
     "init_core_cnt" : 4,
     "prob_dist": "uniform",
+    "core_isolation" : true,
+    "vm_configs": [
+    	{"name": "fedora_test", "vcpu": 4, "cid": 35},
+        {"name": "fedora_test2", "vcpu": 4, "cid" : 36}
+    ],
     "slices": [
         {
             "type": "repeater",
