@@ -5,13 +5,18 @@ import argparse
 import json
 import random
 import time
+from datetime import datetime
+import pytz
+import threading
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
-CURR_CORE_CNT = -1 # TODO: Temp variable to be handled better
+utc = pytz.timezone("UTC")
+est = pytz.timezone("America/New_York")
+total_virtual_cores = 0 
+lock = threading.Lock() 
 
-
-def run_cli():
+def run_cli(conn):
     while True:
         msg = input("insert number of pcpus allocated to guest vm: ")
         conn.sendall(msg.encode())
@@ -21,27 +26,39 @@ def run_cli():
 
         print(f"Received response: {buf}")
 
-def change_vcpu_cnt_sim(delta, log_fd): 
-    global CURR_CORE_CNT
-    CURR_CORE_CNT += delta
-    conn.sendall(str(CURR_CORE_CNT).encode())
+def change_vcpu_cnt_sim(delta, log_fd, conn): 
+    global total_virtual_cores
+    utc_localized = utc.localize(datetime.now())
+    est_time = utc_localized.astimezone(est)
+    with lock :
+        if delta == 1:
+            total_virtual_cores-=2
+        else :
+            total_virtual_cores+=2
+            
+    log_fd.write(f"Before change to {total_virtual_cores} : {est_time}\n")
+    conn.sendall(str(delta).encode())
     buf = conn.recv(64)
-    log_fd.write(f"{str(CURR_CORE_CNT)}, {buf.decode('utf-8')}")
-    print(f"guest vm vcpu count changed to: {CURR_CORE_CNT} in {buf.decode('utf-8')}")
+    utc_localized = utc.localize(datetime.now())
+    est_time = utc_localized.astimezone(est)
+    log_fd.write(f"After change to {total_virtual_cores} : {est_time}\n")
+    log_fd.write(f"{str(total_virtual_cores)}, {buf.decode('utf-8')}\n")
+    print(f"guest vm vcpu count changed to: {total_virtual_cores} in {buf.decode('utf-8')}")
 
 
-def sim_slices(slices, log_fd):
+def sim_slices(slices, log_fd, conn):
     for slice in slices:
         if slice["type"] == "repeater":
             cnt = slice["cnt"]
             for i in range(cnt):
-                sim_slices(slice["slices"], log_fd)
+                sim_slices(slice["slices"], log_fd, conn)
         elif slice["type"] == "time_slice":
-                change_vcpu_cnt_sim(slice["delta"], log_fd)
-                rand_time_ms = random.uniform(slice["interval"][0], slice["interval"][1])
+                change_vcpu_cnt_sim(slice["delta"], log_fd, conn)
+                rand_time_ms =slice["interval"][0]
                 time.sleep(rand_time_ms/1000)
 
 def run_sim(config_file, log_file, conn):
+    global total_virtual_cores
     config_fd = open(config_file, "r")
     log_fd = open(log_file, "a")
 
@@ -49,13 +66,15 @@ def run_sim(config_file, log_file, conn):
         
     # TODO: validate config object
 
-    global CURR_CORE_CNT
-    CURR_CORE_CNT = config["init_core_cnt"] # TODO: temp variable
-    conn.sendall(str(CURR_CORE_CNT).encode())
+    core_cnt = config["init_core_cnt"] # TODO: temp variable
+    with lock :
+        total_virtual_cores += core_cnt
+        
+    conn.sendall(str(core_cnt).encode())
     buf = conn.recv(64)
-    print(f"guest vm vcpu count initialized to {CURR_CORE_CNT} in {buf.decode('utf-8')}")
+    print(f"guest vm vcpu count initialized to {core_cnt} in {buf.decode('utf-8')}")
 
-    sim_slices(config["slices"], log_fd)
+    sim_slices(config["slices"], log_fd ,conn)
 
 
 if __name__ == "__main__":
@@ -71,11 +90,13 @@ if __name__ == "__main__":
     s = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
     s.bind((CID, PORT))
     s.listen()
-    (conn, (remote_cid, remote_port)) = s.accept()
-    print(f"Connection opened by cid={remote_cid} port={remote_port}. Press any key to continue...")
-    input()
-    
-    if args.mode == "cli":
-        run_cli()
-    elif args.mode == "sim":
-        run_sim(args.config_file, args.log_file, conn)
+    while True:
+        conn, (remote_cid, remote_port) = s.accept()
+        # print(f"Connection opened by cid={remote_cid} port={remote_port}. Press any key to continue...")
+        # input()
+        client_thread = threading.Thread(target=run_cli,args=(conn), daemon=True)
+        if args.mode == "cli":
+            client_thread = threading.Thread(target=run_cli,args=(conn), daemon=True)
+        elif args.mode == "sim":
+            client_thread = threading.Thread(target=run_sim,args=(args.config_file,args.log_file,conn), daemon=True)
+        client_thread.start()
