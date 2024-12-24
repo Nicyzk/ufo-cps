@@ -76,11 +76,13 @@ def resize_cpus_ufo(required_cpu_count):
     current_cpu_list = online_cpu_list()
     current_cpu_count = len(current_cpu_list)
     print("online cpu list (before change)", current_cpu_list)
-
+    time2 = time.tim()
     # delta is number of cpu cores you want to add
     delta = required_cpu_count - current_cpu_count
+    time3 = time.time()
 
     for i in range(CPU_COUNT-1, -1, -1):
+        time4 = time.time()
         if delta == 0:
             break
 
@@ -91,11 +93,14 @@ def resize_cpus_ufo(required_cpu_count):
         if delta < 0 and i in current_cpu_list:
             os.system(f"echo 0 | sudo tee /sys/devices/system/cpu/cpu{i}/online")
             delta+=1
+       print(f"For loop execution time: {time.time()-time4}")
 
     print("online cpu list (after change)", online_cpu_list())
     end_time = time.time()
     elapsed_time = end_time - start_time
     print(f"Function execution time: {elapsed_time:.2f} seconds")
+    print(f"Function execution time: {start_time - time2} seconds")
+    print(f"Function execution time: {start_time - time3} seconds")
 
 
 def resize_cpus_cps(required_cpu_count):
