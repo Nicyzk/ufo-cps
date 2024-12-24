@@ -53,25 +53,43 @@ def assign_cpus_to_vms(vm_configs, cpu_list):
     total_cpus = len(cpu_list)
     if total_vms == 0 or total_cpus == 0:
         print("No VMs or CPUs available for assignment")
-        return
 
     # Calculate fair division of CPUs
     cpu_per_vm = total_cpus // total_vms
     assignments = {}
     for i, vm in enumerate(vm_configs):
         start = i * cpu_per_vm
-        end = start + cpu_per_vm
-        assignments[vm["name"]] = cpu_list[start:end]
+        vcpu_per_pcpu = vm["vcpu"] // cpu_per_vm
+        vcpu_pcpu = []
+        print(f"{i} , {vcpu_per_pcpu}")
+        for i in range(vm["vcpu"]):
+            vcpu_pcpu.append({i: start + (i // vcpu_per_pcpu)})
+        print(f"vcpu_pcpu {vcpu_pcpu}")
+
+        assignments[vm["name"]] = vcpu_pcpu
 
     return assignments
 
-def apply_vcpu_pinning(vm_assignments):
+def get_vmname_by_cid(config_file, cid):
+    config_fd = open(config_file, "r")
+    cofnig = json.loads(config_fd.read())
+    vm_configs = config.get("vm_configs", [])
+    for vm in vm_configs:
+        if vm.get("cid") == cid:
+            return vm["name"]
+    return None
+
+def apply_vcpu_pinning(vm_assignments, vm_name_arg):
     for vm_name, cpus in vm_assignments.items():
+        if vm_name != vm_name_arg:
+            continue
+
         print(f"Applying pinning for {vm_name}: {cpus}")
-        for vcpu_id, pcpu_id in enumerate(cpus):
-            cmd = f"sudo virsh vcpupin {vm_name} {vcpu_id} {pcpu_id}"
-            print(f"Running: {cmd}")
-            run_command(cmd)
+        for mapping in cpus:
+            for vcpu_id, pcpu_id in mapping.items():
+                cmd = f"sudo virsh vcpupin {vm_name} {vcpu_id} {pcpu_id}"
+                print(f"Running: {cmd}")
+                run_command(cmd)
 
 def change_vcpu_cnt_sim(delta, log_fd): 
     global CURR_CORE_CNT
@@ -119,7 +137,17 @@ if __name__ == "__main__":
     sim_parser.add_argument("config_file")
     sim_parser.add_argument("log_file")
     args = parser.parse_args()
-    
+    vm_assignments = {}    
+    if args.mode == "sim":
+        cofnig_fd = open(args.config_file, "r")
+        config = json.loads(cofnig_fd.read())
+        if config.get("core_isolation", False):
+            vm_configs =  config.get("vm_configs", [])
+            cpu_list = get_cpu_list()
+            print(cpu_list)
+            vm_assignments = assign_cpus_to_vms(vm_configs, cpu_list)
+            print(vm_assignments)
+
     print("waiting for a client to connect...")
     s = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
     s.bind((CID, PORT))
@@ -127,6 +155,12 @@ if __name__ == "__main__":
     (conn, (remote_cid, remote_port)) = s.accept()
     print(f"Connection opened by cid={remote_cid} port={remote_port}. Press any key to continue...")
     input()
+    vm_name = get_vmname_by_cid(args.config_file, remote_cid)
+    print(f"vm_name: {vm_name}")
+
+    if args.mode == "sim" and vm_assignments != {} and vm_name is not None:
+        print("pinning")
+        apply_vcpu_pinning(vm_assignments, vm_name)
     
     if args.mode == "cli":
         run_cli()
