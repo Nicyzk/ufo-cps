@@ -76,7 +76,7 @@ def resize_cpus_ufo(required_cpu_count):
     current_cpu_list = online_cpu_list()
     current_cpu_count = len(current_cpu_list)
     print("online cpu list (before change)", current_cpu_list)
-    time2 = time.tim()
+    time2 = time.time()
     # delta is number of cpu cores you want to add
     delta = required_cpu_count - current_cpu_count
     time3 = time.time()
