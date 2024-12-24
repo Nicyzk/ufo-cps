@@ -66,7 +66,7 @@ def resize_cpus_ufo(required_cpu_count):
     if required_cpu_count < 1 or required_cpu_count > CPU_COUNT:
         print("required cpu count is out of range")
         return
-
+    start_time = time.time()
     current_cpu_list = online_cpu_list()
     current_cpu_count = len(current_cpu_list)
     print("online cpu list (before change)", current_cpu_list)
@@ -87,6 +87,9 @@ def resize_cpus_ufo(required_cpu_count):
             delta+=1
 
     print("online cpu list (after change)", online_cpu_list())
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"Function execution time: {elapsed_time:.2f} seconds")
 
 
 def resize_cpus_cps(required_cpu_count):
