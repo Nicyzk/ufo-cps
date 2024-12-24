@@ -13,7 +13,7 @@ CID = socket.VMADDR_CID_HOST
 PORT = 9999
 
 def run_sysbench():
-    command = "sudo sysbench cpu --time=170 --threads=8 --report-interval=1 run | ts '[%Y-%m-%d %H:%M:%S]'"
+    command = "sudo sysbench cpu --time=240 --threads=8 --report-interval=1 run | ts '[%Y-%m-%d %H:%M:%S]'"
     with open("sysbenchlog.txt", "w") as log_file:
         # Run the command in a subprocess
         process = subprocess.Popen(
