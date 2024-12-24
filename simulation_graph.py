@@ -24,13 +24,13 @@ latency_df = pd.DataFrame(latency_records)
 # Parsing CPU change data
 cpu_change_records = []
 lines = [line for line in cpu_changes.strip().split('\n') if line.strip()]  # Remove blank lines
-for i in range(0, len(lines), 2):
+for i in range(0, len(lines), 3):
     before_line = lines[i].split(": ", 1)[1].strip()
     after_line = lines[i + 1].split(": ", 1)[1].strip()
     before_time = datetime.fromisoformat(before_line)
     after_time = datetime.fromisoformat(after_line)
     average_time = before_time + (after_time - before_time) / 2
-    cpu = 4 if "to 4" in lines[i] else 8
+    cpu = 2 if "to 2" in lines[i] else 6
     cpu_change_records.append({"timestamp": average_time, "cpu_count": cpu})
 
 cpu_df = pd.DataFrame(cpu_change_records)
@@ -55,4 +55,4 @@ plt.xticks(rotation=45)
 
 # Show plot
 plt.tight_layout()
-plt.savefig("simulation.png")
+plt.savefig("simulation-vm2.png")

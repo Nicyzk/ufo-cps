@@ -60,7 +60,7 @@ def sim_slices(slices, log_fd, conn):
 def run_sim(config_file, log_file, conn):
     global total_virtual_cores
     config_fd = open(config_file, "r")
-    log_fd = open(log_file, "a")
+    log_fd = open(log_file, "w")
 
     config = json.loads(config_fd.read())
         

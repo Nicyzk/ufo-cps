@@ -4,16 +4,16 @@
     "slices": [
         {
             "type": "repeater",
-	    "cnt": 15,
+	    "cnt": 10,
 	    "slices": [
 	        {
 		    "type": "time_slice",
-		    "interval": [5000, 4000],
+		    "interval": [10000, 4000],
 		    "delta": 1
 		}, 
 		{
 		    "type": "time_slice",
-		    "interval": [5000, 4000],
+		    "interval": [10000, 4000],
 		    "delta": 3
 		}
 	    ]
