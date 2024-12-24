@@ -89,11 +89,12 @@ def resize_cpus_ufo(required_cpu_count):
         if delta > 0 and i not in current_cpu_list:
             os.system(f"echo 1 | sudo tee /sys/devices/system/cpu/cpu{i}/online") 
             delta-=1
+            print(f"For loop execution time: {time.time() - time4}")
 
         if delta < 0 and i in current_cpu_list:
             os.system(f"echo 0 | sudo tee /sys/devices/system/cpu/cpu{i}/online")
             delta+=1
-        print(f"For loop execution time: {time.time()-time4}")
+            print(f"For loop execution time: {time.time()-time4}")
 
     print("online cpu list (after change)", online_cpu_list())
     end_time = time.time()
