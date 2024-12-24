@@ -5,6 +5,8 @@ import argparse
 import json
 import random
 import time
+import sys
+import subprocess
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
@@ -20,6 +22,56 @@ def run_cli():
             break
 
         print(f"Received response: {buf}")
+
+def run_command(cmd):
+    try:
+        result = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        print(f"Error running command: {cmd}\n{e.stderr}", file=sys.stderr)
+
+def get_cpu_list():
+    """Get the list of available CPUs from lscpu."""
+    lscpu_output = run_command("lscpu")
+    for line in lscpu_output.splitlines():
+        if line.startswith("On-line CPU(s) list:"):
+            cpu_range = line.split(":")[1].strip()
+            # Expand ranges like "0-3" to [0, 1, 2, 3]
+            cpus = []
+            for part in cpu_range.split(","):
+                if "-" in part:
+                    start, end = map(int, part.split("-"))
+                    cpus.extend(range(start, end + 1))
+                else:
+                    cpus.append(int(part))
+            return cpus
+    print("Failed to fetch CPU list from the host machine")
+
+
+def assign_cpus_to_vms(vm_configs, cpu_list):
+    total_vms = len(vm_configs)
+    total_cpus = len(cpu_list)
+    if total_vms == 0 or total_cpus == 0:
+        print("No VMs or CPUs available for assignment")
+        return
+
+    # Calculate fair division of CPUs
+    cpu_per_vm = total_cpus // total_vms
+    assignments = {}
+    for i, vm in enumerate(vm_configs):
+        start = i * cpu_per_vm
+        end = start + cpu_per_vm
+        assignments[vm["name"]] = cpu_list[start:end]
+
+    return assignments
+
+def apply_vcpu_pinning(vm_assignments):
+    for vm_name, cpus in vm_assignments.items():
+        print(f"Applying pinning for {vm_name}: {cpus}")
+        for vcpu_id, pcpu_id in enumerate(cpus):
+            cmd = f"sudo virsh vcpupin {vm_name} {vcpu_id} {pcpu_id}"
+            print(f"Running: {cmd}")
+            run_command(cmd)
 
 def change_vcpu_cnt_sim(delta, log_fd): 
     global CURR_CORE_CNT
@@ -48,10 +100,11 @@ def run_sim(config_file, log_file, conn):
     config = json.loads(config_fd.read())
         
     # TODO: validate config object
-
+    
     global CURR_CORE_CNT
     CURR_CORE_CNT = config["init_core_cnt"] # TODO: temp variable
     conn.sendall(str(CURR_CORE_CNT).encode())
+
     buf = conn.recv(64)
     print(f"guest vm vcpu count initialized to {CURR_CORE_CNT} in {buf.decode('utf-8')}")
 
