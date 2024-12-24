@@ -1,23 +1,27 @@
 {
-    "init_core_cnt" : 3,
-    "prob_dist": "uniform",
-    "slices": [
+  "35": {
+    "vm_name": "charmander",
+    "init_vcpu": 8,
+    "workload_config": {
+      "max_threads": 200,
+      "slices": [
         {
-            "type": "repeater",
-	    "cnt": 15,
-	    "slices": [
-	        {
-		    "type": "time_slice",
-		    "interval": [5000, 4000],
-		    "delta": 1
-		}, 
-		{
-		    "type": "time_slice",
-		    "interval": [5000, 4000],
-		    "delta": 3
-		}
-	    ]
-	}
-    ]
+          "type": "repeater",
+          "cnt": 15,
+          "slices": [
+            {
+              "type": "time_slice",
+              "percentage_load": 0.2,
+              "interval": 5
+            },
+            {
+              "type": "time_slice",
+              "percentage_load": 0.4,
+              "interval": 5
+            }
+          ]
+        }
+      ]
+    }
+  }
 }
-
