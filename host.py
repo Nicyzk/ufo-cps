@@ -14,10 +14,13 @@ import subprocess
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
 CURR_CORE_CNT = -1
-lock = threading.Lock() 
 config = None
 log_fds = None # {<cid>: log_fd, ...}
 conns = None # {<cid>: conn, ....}
+vm_assignments = None # {<cid>: [], ... }
+vm_threads = None # { <cid>: x, ... }
+vm_threads_lock = threading.Lock()
+sim_started = False
 
 # initializes a guest vm
 def init_guest(conn, cid):
@@ -34,25 +37,24 @@ def init_guest(conn, cid):
     #TODO
 
     # initialize vcpu count for vm
-    init_vcpu = config[cid]["init_vcpu"]  
-    with lock :
-        total_virtual_cores += init_vcpu
-        
-    conn.sendall(str(core_cnt).encode())
+    init_vcpu = config[cid]["init_vcpu"]
+    conn.sendall(str(init_vcpu).encode())
 
 
-# this core reallocation occurs at start of simulation and periodically thereafter
+# this adjusts the core assignment mapping, but does not actually change core allocation. It occurs at start of simulation and periodically thereafter
 def adjust_pcpu_to_vm_mapping():
     global config
     global vm_assignments
+    global vm_threads
     global sim_started
 
+    total_cpus = len(cpu_list)
+    if total_vms == 0 or total_cpus == 0:
+        print("No VMs or CPUs available for assignment")
+    
     # if the simulation has not started, we should assign pcpus to each vm according to the config file
     if not sim_started:
         total_cpus_req = sum(vm["pcpu"] for vm in config)
-        total_cpus = len(cpu_list)
-        if total_vms == 0 or total_cpus == 0:
-            print("No VMs or CPUs available for assignment")
 
         cpu_idx = 0
         for vm in config:
@@ -66,36 +68,89 @@ def adjust_pcpu_to_vm_mapping():
     elif sim_started:
         vm_assignments_new = copy.deepcopy(vm_assignments)
 
-        # calculate total current load
+        # calculate allocation required for each vm
+        curr_vm_threads = copy.deepcopy(vm_threads) 
+        total_threads = sum(curr_vm_threads.values())
+        cpus_req = {}
+        for (cid, cnt) in vm_threads.items():
+            cpus_req[cid] = floor((cnt / total_threads) * total_cpus)
+                
+        spare_cpus = []
+        with vm_assignments_lock:
+            # collect spare cpus
+            for cid, cpus in vm_assignments.items():
+                while len(cpus) > cpus_req[cid]:
+                    spare_cpus.append(cpus.pop())
 
-    # Calculate fair division of CPUs
-    cpu_per_vm = total_cpus // total_vms
-    assignments = {}
-    for i, vm in enumerate(vm_configs):
-        start = i * cpu_per_vm
-        vcpu_per_pcpu = vm["vcpu"] // cpu_per_vm
-        vcpu_pcpu = []
-        print(f"{i} , {vcpu_per_pcpu}")
-        for i in range(vm["vcpu"]):
-            vcpu_pcpu.append({i: start + (i // vcpu_per_pcpu)})
-        print(f"vcpu_pcpu {vcpu_pcpu}")
-
-        assignments[vm["name"]] = vcpu_pcpu
-
-    return assignments
+            # distribute spare cpus
+            for cid, cpus in vm_assignments.items():
+                while len(cpus) < cpus_req[cid]:
+                    cpus_req[cid].append(spare_cpus.pop())
 
 
+# adjust number of vcpus to match pcpu and then apply cpu pinning. Note UFO's assumption is that 1 vcpu maps to 1 cpu.
 def apply_vcpu_pinning(vm_assignments, vm_name_arg):
-    for vm_name, cpus in vm_assignments.items():
-        if vm_name != vm_name_arg:
-            continue
+    global conns
+    global sim_started
+    global vcpu_cpu_mapping # to store in vm_assignments variable
 
-        print(f"Applying pinning for {vm_name}: {cpus}")
-        for mapping in cpus:
-            for vcpu_id, pcpu_id in mapping.items():
-                cmd = f"sudo virsh vcpupin {vm_name} {vcpu_id} {pcpu_id}"
-                print(f"Running: {cmd}")
-                run_command(cmd)
+    
+    # if the simulation has not started, we need to 1. adjust vcpu count 2. create vcpu_cpu_mapping 3. apply vcpu pinning
+    if not sim_started:
+        # adjust vcpu count on guest vm
+        conn.sendall(str(f"vpcpu: {len(cpus)}").encode())
+        
+        # guest vm returns adjusted vcpu_id
+        buf = conn.recv(64) # format: [<vcpu_id1>, ...]
+        vcpu_ids = []
+        
+        # create key for vm in vcpu_cpu_mapping
+        vcpu_cpu_mapping[cid] = {}
+        for i, vcpu_id in enumerate(vcpu_ids):
+            cpu = vm_assignments[cid][i]
+            vcpu_cpu_mapping[cid][vcpu_id] = cpu
+            pin_vcpu_on_cpu(cid, vcpu_ids[i], cpu)
+
+
+    # if the simulation has already started, we need to 1. adjust vcpu count 2. vcpu_ids are misaligned with vcpu_cpu_mapping, adjust mapping 3. pin newly-added vcpus on spare cpus
+    elif sim_started:
+        spare_cpus = []
+        vm_vcpu_ids_adjusted = {}
+
+        with vm_assignments_lock:
+            # adjust vcpu count of each vm to match cpu count
+            for cid, cpus in vm_assignments.items():
+                # adjust vcpu count on guest vm
+                conn.sendall(str(f"vpcpu: {len(cpus)}").encode())
+                
+                # guest vm returns adjusted vcpu_id
+                buf = conn.recv(64) # format: [<vcpu_id1>, ...]
+                vcpu_ids = []
+                vm_vcpu_ids_adjusted[cid] = vcpu_ids
+
+                # if vcpus are in the vcpu_cpu_mapping of the vm, but not in vcpu_ids, it means these ids have been removed. We add their cpus to spare_cpus and modify the mapping.
+                for vcpu_id in vcpu_cpu_mapping[cid].keys():
+                    if vcpu_id not in vcpu_ids:
+                        spare_cpus.append(vcpu_cpu_mapping[cid][vcpu_id]
+                        del vcpu_cpu_mapping[cid][vcpu_id]
+            
+            # redistribute the spare cpus to newly-added vcpu_ids
+            for cid, cpus in vm_assignments.items():
+                # if ids are in vcpu_ids, but not in vcpu_cpu_mapping of the vm, these ids are newly added and do not have cpus assigned yet. We pin these vcpus to the spare cpus.  
+                for vcpu_id in vm_vcpu_ids_adjusted[cid]:
+                    if vcpu_id not in vcpu_cpu_mapping[cid].keys():
+                        cpu = spare_cpus.pop()
+                        vcpu_cpu_mapping[cid][vcpu_id] = cpu
+                        pin_vcpu_on_cpu(cid, vcpu_id, cpu)
+
+
+def pin_vcpu_on_cpu(vm_cid, vcpu_id, pcpu_id):
+    global config
+    vm_name = config[vm_cid]["vm_name"]
+    print(f"Applying pinning for {vm_name}: {cpus}")
+    cmd = f"sudo virsh vcpupin {vm_name} {vcpu_id} {pcpu_id}"
+    print(f"Running: {cmd}")
+    run_command(cmd)
 
 
 def change_vcpu_cnt_sim(delta, log_fd): 
