@@ -8,6 +8,7 @@ import subprocess
 import sys
 import datetime
 import threading
+import json
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
@@ -174,17 +175,19 @@ if __name__ == "__main__":
     print("online CPUs:", online_cpu_list())
     print("IRQ list : ", IRQ_LIST)
     while True:
-        data = s.recv(1024)
-        print("Received from server:", data.decode())
-        required_cpu_count = int(data)
+        data = json.loads(s.recv(1024).decode('utf-8'))
+        ret = {}
+        print(f"Received from server -> {key}: {value}")
         
         start_time = datetime.datetime.now()
 
         if sys.argv[1] == "ufo":
-            resize_cpus_ufo(required_cpu_count)
+            if "vcpu_cnt_request" in data:
+                ret["vcpu_ids"] = resize_cpus_ufo(int(data["vcpu_cnt_request"]))
         elif sys.argv[1] == "cps":
             resize_cpus_cps(required_cpu_count)
         
         end_time = datetime.datetime.now()
         time_delta = str(end_time - start_time)
-        s.sendall(f"resized in time: ({time_delta})".encode('utf-8'))
+        ret["time_elapsed"] = time_delta
+        s.sendall(json.dumps(ret).encode('utf-8'))

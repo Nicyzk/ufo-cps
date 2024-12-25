@@ -15,11 +15,10 @@ CID = socket.VMADDR_CID_HOST
 PORT = 9999
 CURR_CORE_CNT = -1
 config = None
-log_fds = None # {<cid>: log_fd, ...}
-conns = None # {<cid>: conn, ....}
-vm_assignments = None # {<cid>: [], ... }
-vm_threads = None # { <cid>: x, ... }
-vm_threads_lock = threading.Lock()
+log_fds = {} # {<cid>: log_fd, ...}
+conns = {} # {<cid>: conn, ....}
+runtime_vm_configs = {} # {<cid>: { cpus: [<cpu1>, ...], vcpu_cpu_mapping: {<vcpu1: cpu2, ...}, threads: int}, ...}
+runtime_vm_configs_lock = threading.Lock()
 sim_started = False
 
 # initializes a guest vm
@@ -33,19 +32,10 @@ def init_guest(conn, cid):
     global conns
     conns[cid] = conn
 
-    # initialize pcpu count for vm
-    #TODO
-
-    # initialize vcpu count for vm
-    init_vcpu = config[cid]["init_vcpu"]
-    conn.sendall(str(init_vcpu).encode())
-
-
 # this adjusts the core assignment mapping, but does not actually change core allocation. It occurs at start of simulation and periodically thereafter
 def adjust_pcpu_to_vm_mapping():
     global config
-    global vm_assignments
-    global vm_threads
+    global runtime_vm_configs
     global sim_started
 
     total_cpus = len(cpu_list)
@@ -66,50 +56,51 @@ def adjust_pcpu_to_vm_mapping():
 
     # if the simulation has started, we should assign pcpus to each vm according to their current load or max_threads
     elif sim_started:
-        vm_assignments_new = copy.deepcopy(vm_assignments)
-
+        
         # calculate allocation required for each vm
-        curr_vm_threads = copy.deepcopy(vm_threads) 
-        total_threads = sum(curr_vm_threads.values())
-        cpus_req = {}
-        for (cid, cnt) in vm_threads.items():
-            cpus_req[cid] = floor((cnt / total_threads) * total_cpus)
-                
-        spare_cpus = []
-        with vm_assignments_lock:
-            # collect spare cpus
-            for cid, cpus in vm_assignments.items():
-                while len(cpus) > cpus_req[cid]:
-                    spare_cpus.append(cpus.pop())
+        with runtime_vm_configs_lock:
+            total_threads = sum(config["threads"] for runtime_config in runtime_vm_configs.values())
+            cnt_cpus_req = {}
+            for (cid, runtime_config) in runtime_vm_configs.items():
+                cnt_cpus_req[cid] = floor((runtime_config["threads"] / total_threads) * total_cpus)
+                    
+            spare_cpus = []
+           
+           # collect spare cpus
+            for (cid, runtime_config) in runtime_vm_configs:
+                while len(runtime_config["cpus"]) > cnt_cpus_req[cid]:
+                    spare_cpus.append(runtime_configs["cpus"].pop())
 
             # distribute spare cpus
-            for cid, cpus in vm_assignments.items():
-                while len(cpus) < cpus_req[cid]:
-                    cpus_req[cid].append(spare_cpus.pop())
+            for (cid, runtime_config) in runtime_vm_configs:
+                while len(runtime_config["cpus"]) < cnt_cpus_req[cid]:
+                    runtime_config["cpus"].append(spare_cpus.pop())
 
 
 # adjust number of vcpus to match pcpu and then apply cpu pinning. Note UFO's assumption is that 1 vcpu maps to 1 cpu.
-def apply_vcpu_pinning(vm_assignments, vm_name_arg):
+def apply_vcpu_pinning():
     global conns
     global sim_started
-    global vcpu_cpu_mapping # to store in vm_assignments variable
-
+    global runtime_vm_configs
     
     # if the simulation has not started, we need to 1. adjust vcpu count 2. create vcpu_cpu_mapping 3. apply vcpu pinning
     if not sim_started:
-        # adjust vcpu count on guest vm
-        conn.sendall(str(f"vpcpu: {len(cpus)}").encode())
-        
-        # guest vm returns adjusted vcpu_id
-        buf = conn.recv(64) # format: [<vcpu_id1>, ...]
-        vcpu_ids = []
-        
-        # create key for vm in vcpu_cpu_mapping
-        vcpu_cpu_mapping[cid] = {}
-        for i, vcpu_id in enumerate(vcpu_ids):
-            cpu = vm_assignments[cid][i]
-            vcpu_cpu_mapping[cid][vcpu_id] = cpu
-            pin_vcpu_on_cpu(cid, vcpu_ids[i], cpu)
+        with runtime_vm_configs.lock:
+            for (cid, runtime_config) in runtime_vm_configs.items():
+                # adjust vcpu count on guest vm
+                msg = { "vcpu_cnt_request": len(runtime_config["cpus"] }
+                conn.sendall(json.dumps(msg).encode())
+                
+                # guest vm returns adjusted vcpu_id
+                resp = json.loads(conn.recv(64).decode('utf-8'))
+                vcpu_ids = eval(resp["vcpu_id"]
+                
+                # create key for vm in vcpu_cpu_mapping
+                runtime_config["vcpu_cpu_mapping"] = {}
+                for i, vcpu_id in enumerate(vcpu_ids):
+                    cpu = runtime_config["cpus"][i]
+                    runtime_config["vcpu_cpu_mapping"][vcpu_id] = cpu
+                    pin_vcpu_on_cpu(cid, vcpu_ids[i], cpu)
 
 
     # if the simulation has already started, we need to 1. adjust vcpu count 2. vcpu_ids are misaligned with vcpu_cpu_mapping, adjust mapping 3. pin newly-added vcpus on spare cpus
@@ -124,8 +115,8 @@ def apply_vcpu_pinning(vm_assignments, vm_name_arg):
                 conn.sendall(str(f"vpcpu: {len(cpus)}").encode())
                 
                 # guest vm returns adjusted vcpu_id
-                buf = conn.recv(64) # format: [<vcpu_id1>, ...]
-                vcpu_ids = []
+                buf = conn.recv(64).decode('utf-8') # format: [<vcpu_id1>, ...]
+                vcpu_ids = eval(buf)
                 vm_vcpu_ids_adjusted[cid] = vcpu_ids
 
                 # if vcpus are in the vcpu_cpu_mapping of the vm, but not in vcpu_ids, it means these ids have been removed. We add their cpus to spare_cpus and modify the mapping.
@@ -151,15 +142,6 @@ def pin_vcpu_on_cpu(vm_cid, vcpu_id, pcpu_id):
     cmd = f"sudo virsh vcpupin {vm_name} {vcpu_id} {pcpu_id}"
     print(f"Running: {cmd}")
     run_command(cmd)
-
-
-def change_vcpu_cnt_sim(delta, log_fd): 
-    global CURR_CORE_CNT
-    CURR_CORE_CNT += delta
-    conn.sendall(str(CURR_CORE_CNT).encode())
-    buf = conn.recv(64)
-    log_fd.write(f"{str(CURR_CORE_CNT)}, {buf.decode('utf-8')}")
-    print(f"guest vm vcpu count initialized to {core_cnt} in {buf.decode('utf-8')}")
 
 
 # changes the level of simulation workload on the vm at cid 
@@ -219,6 +201,10 @@ if __name__ == "__main__":
             if len(client_threads) == len(config):
                 break
         
-        for client_thread in client_threads:
-            client_thread.start()
+        adjust_pcpu_to_vm_mapping()
+        apply_vcpu_pinning()
+        print(runtime_vm_configs)
+        sim_started = True
+        #for client_thread in client_threads:
+        #    client_thread.start()
     
