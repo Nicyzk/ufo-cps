@@ -175,8 +175,6 @@ if __name__ == "__main__":
     print("online CPUs:", online_cpu_list())
     # print("IRQ list : ", IRQ_LIST)
     while True:
-        chunk = s.recv(1024).decode('utf-8')
-        print("from server", chunk)
         data = json.loads(s.recv(1024).decode('utf-8'))
         ret = {}
 
@@ -184,7 +182,8 @@ if __name__ == "__main__":
 
         if sys.argv[1] == "ufo":
             if "vcpu_cnt_request" in data:
-                ret["vcpu_ids"] = resize_cpus_ufo(int(data["vcpu_cnt_request"]))
+                resize_cpus_ufo(int(data["vcpu_cnt_request"]))
+                ret["vcpu_ids"] = online_cpu_list()
         elif sys.argv[1] == "cps":
             resize_cpus_cps(required_cpu_count)
         
