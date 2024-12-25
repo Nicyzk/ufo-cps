@@ -24,3 +24,9 @@ def get_cpu_list():
                     cpus.append(int(part))
             return cpus
     print("Failed to fetch CPU list from the host machine")
+
+
+def get_vm_name_by_cid(config, cid):
+    for vm in config:
+        if vm["vm_cid"] == cid:
+            return vm["vm_name"]

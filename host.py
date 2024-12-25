@@ -9,6 +9,7 @@ from datetime import datetime
 import threading
 import utils
 import math
+import sys
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
@@ -93,12 +94,10 @@ def apply_vcpu_pinning():
             for (cid, runtime_config) in runtime_vm_configs.items():
                 # adjust vcpu count on guest vm
                 msg = { "vcpu_cnt_request": len(runtime_config["cpus"]) }
-                conn.sendall(json.dumps(msg).encode())
+                conns[cid].sendall(json.dumps(msg).encode())
                 
                 # guest vm returns adjusted vcpu_id
-                chunk = conn.recv(1024).decode()
-                print("chunk", chunk)
-                resp = json.loads(conn.recv(1024).decode('utf-8'))
+                resp = json.loads(conns[cid].recv(1024).decode('utf-8'))
                 vcpu_ids = resp["vcpu_ids"]
                
                 print(f"vcpu_ids {vcpu_ids}")
@@ -119,10 +118,10 @@ def apply_vcpu_pinning():
             # adjust vcpu count of each vm to match cpu count
             for cid, cpus in vm_assignments.items():
                 # adjust vcpu count on guest vm
-                conn.sendall(str(f"vpcpu: {len(cpus)}").encode())
+                conns[cid].sendall(str(f"vpcpu: {len(cpus)}").encode())
                 
                 # guest vm returns adjusted vcpu_id
-                buf = conn.recv(1024).decode('utf-8') # format: [<vcpu_id1>, ...]
+                buf = conns[cid].recv(1024).decode('utf-8') # format: [<vcpu_id1>, ...]
                 vcpu_ids = eval(buf)
                 vm_vcpu_ids_adjusted[cid] = vcpu_ids
 
@@ -144,8 +143,7 @@ def apply_vcpu_pinning():
 
 def pin_vcpu_on_cpu(vm_cid, vcpu_id, pcpu_id):
     global config
-    vm_name = config[vm_cid]["vm_name"]
-    print(f"Applying pinning for {vm_name}: {cpus}")
+    vm_name = utils.get_vm_name_by_cid(config, vm_cid)
     cmd = f"sudo virsh vcpupin {vm_name} {vcpu_id} {pcpu_id}"
     print(f"Running: {cmd}")
     utils.run_command(cmd)
@@ -154,9 +152,10 @@ def pin_vcpu_on_cpu(vm_cid, vcpu_id, pcpu_id):
 # changes the level of simulation workload on the vm at cid 
 def adjust_workload(max_threads, percentage_load, cid):
     global log_fds
+    global conns
     log_fd = log_fds[cid]
-    conn.sendall(f"percentage_load: {str(percentage_load)}".encode())
-    buf = conn.recv(1024)
+    conns[cid].sendall(f"percentage_load: {str(percentage_load)}".encode())
+    buf = conns[cid].recv(1024)
 
 def sim_workload(max_threads, slices, cid):
     for slice in slices:
@@ -201,13 +200,22 @@ if __name__ == "__main__":
         config = json.loads(config_fd.read())
         
         client_threads = []
-        for _ in config:
+        expected_vms = [c["vm_cid"] for c in config]
+        while True:
             print("still waiting for guest vm(s)...")
             conn, (remote_cid, remote_port) = s.accept()
+            if remote_cid not in expected_vms:
+                print(f"unexpected vm with cid {remote_cid}")
+                sys.exit()
+            else:
+                expected_vms.remove(remote_cid)
             init_guest(conn, remote_cid)
             client_thread = threading.Thread(target=run_sim, args=(remote_cid,), daemon=True)
             client_threads.append(client_thread)
             print(f"guest {remote_cid} has connected")
+            
+            if len(expected_vms) == 0:
+                break
        
         adjust_pcpu_to_vm_mapping()
         print(runtime_vm_configs)
