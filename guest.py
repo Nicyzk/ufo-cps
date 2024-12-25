@@ -42,7 +42,7 @@ def run_sysbench():
 # Includes both online and offline cpus
 def get_cpu_count():
     cpu_files = os.listdir("/sys/devices/system/cpu/")
-    return len([f for f in cpu_files if re.match("^cpu\d$", f)])
+    return len([f for f in cpu_files if re.match(r"^cpu\d$", f)])
 
 # Get the list of IRQ
 def get_irq_list():
@@ -173,12 +173,13 @@ if __name__ == "__main__":
     s.connect((CID, PORT))
     print("total available CPU count:", CPU_COUNT)
     print("online CPUs:", online_cpu_list())
-    print("IRQ list : ", IRQ_LIST)
+    # print("IRQ list : ", IRQ_LIST)
     while True:
+        chunk = s.recv(1024).decode('utf-8')
+        print("from server", chunk)
         data = json.loads(s.recv(1024).decode('utf-8'))
         ret = {}
-        print(f"Received from server -> {key}: {value}")
-        
+
         start_time = datetime.datetime.now()
 
         if sys.argv[1] == "ufo":

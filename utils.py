@@ -1,3 +1,5 @@
+import sys
+import subprocess
 
 def run_command(cmd):
     try:

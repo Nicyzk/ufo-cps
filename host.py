@@ -6,10 +6,9 @@ import json
 import random
 import time
 from datetime import datetime
-import pytz
 import threading
-import sys
-import subprocess
+import utils
+import math
 
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
@@ -38,7 +37,10 @@ def adjust_pcpu_to_vm_mapping():
     global runtime_vm_configs
     global sim_started
 
+    cpu_list = utils.get_cpu_list()
     total_cpus = len(cpu_list)
+    total_vms = len(config)
+
     if total_vms == 0 or total_cpus == 0:
         print("No VMs or CPUs available for assignment")
     
@@ -48,8 +50,10 @@ def adjust_pcpu_to_vm_mapping():
 
         cpu_idx = 0
         for vm in config:
-            cpus_req = floor((vm["pcpu"] / total_cpus_req) * total_cpus)
-            vm_assignments.setdefault(vm["vm_cid"], []) = cpu_list[cpu_idx: cpu_idx+cpus_req]
+            cpus_req = math.floor((vm["pcpu"] / total_cpus_req) * total_cpus)
+            with runtime_vm_configs_lock:
+                    runtime_config = runtime_vm_configs.setdefault(vm["vm_cid"], {})
+                    runtime_config["cpus"] = cpu_list[cpu_idx: cpu_idx+cpus_req]
             cpu_idx += cpus_req
         
         return
@@ -85,16 +89,19 @@ def apply_vcpu_pinning():
     
     # if the simulation has not started, we need to 1. adjust vcpu count 2. create vcpu_cpu_mapping 3. apply vcpu pinning
     if not sim_started:
-        with runtime_vm_configs.lock:
+        with runtime_vm_configs_lock:
             for (cid, runtime_config) in runtime_vm_configs.items():
                 # adjust vcpu count on guest vm
-                msg = { "vcpu_cnt_request": len(runtime_config["cpus"] }
+                msg = { "vcpu_cnt_request": len(runtime_config["cpus"]) }
                 conn.sendall(json.dumps(msg).encode())
                 
                 # guest vm returns adjusted vcpu_id
-                resp = json.loads(conn.recv(64).decode('utf-8'))
-                vcpu_ids = eval(resp["vcpu_id"]
-                
+                chunk = conn.recv(1024).decode()
+                print("chunk", chunk)
+                resp = json.loads(conn.recv(1024).decode('utf-8'))
+                vcpu_ids = resp["vcpu_ids"]
+               
+                print(f"vcpu_ids {vcpu_ids}")
                 # create key for vm in vcpu_cpu_mapping
                 runtime_config["vcpu_cpu_mapping"] = {}
                 for i, vcpu_id in enumerate(vcpu_ids):
@@ -115,14 +122,14 @@ def apply_vcpu_pinning():
                 conn.sendall(str(f"vpcpu: {len(cpus)}").encode())
                 
                 # guest vm returns adjusted vcpu_id
-                buf = conn.recv(64).decode('utf-8') # format: [<vcpu_id1>, ...]
+                buf = conn.recv(1024).decode('utf-8') # format: [<vcpu_id1>, ...]
                 vcpu_ids = eval(buf)
                 vm_vcpu_ids_adjusted[cid] = vcpu_ids
 
                 # if vcpus are in the vcpu_cpu_mapping of the vm, but not in vcpu_ids, it means these ids have been removed. We add their cpus to spare_cpus and modify the mapping.
                 for vcpu_id in vcpu_cpu_mapping[cid].keys():
                     if vcpu_id not in vcpu_ids:
-                        spare_cpus.append(vcpu_cpu_mapping[cid][vcpu_id]
+                        spare_cpus.append(vcpu_cpu_mapping[cid][vcpu_id])
                         del vcpu_cpu_mapping[cid][vcpu_id]
             
             # redistribute the spare cpus to newly-added vcpu_ids
@@ -141,7 +148,7 @@ def pin_vcpu_on_cpu(vm_cid, vcpu_id, pcpu_id):
     print(f"Applying pinning for {vm_name}: {cpus}")
     cmd = f"sudo virsh vcpupin {vm_name} {vcpu_id} {pcpu_id}"
     print(f"Running: {cmd}")
-    run_command(cmd)
+    utils.run_command(cmd)
 
 
 # changes the level of simulation workload on the vm at cid 
@@ -149,7 +156,7 @@ def adjust_workload(max_threads, percentage_load, cid):
     global log_fds
     log_fd = log_fds[cid]
     conn.sendall(f"percentage_load: {str(percentage_load)}".encode())
-    buf = conn.recv(64)
+    buf = conn.recv(1024)
 
 def sim_workload(max_threads, slices, cid):
     for slice in slices:
@@ -178,6 +185,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # start vsock server
+    print(f"available cpus on host: {utils.get_cpu_list()}")
     s = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
     s.bind((CID, PORT))
     s.listen()
@@ -188,23 +196,25 @@ if __name__ == "__main__":
         run_cli(conn)
     
     # sim program runs according to config file and starts all simulations when all expected guests have connected
-    elif arg.mode == "sim":
-        global config
-        config_fd = open(config_file, "r")
+    elif args.mode == "sim":
+        config_fd = open(args.config_file, "r")
         config = json.loads(config_fd.read())
         
         client_threads = []
-        while True:
-            init_guest(conn, cid)
-            client_thread = threading.Thread(target=run_sim, args=(cid), daemon=True)
+        for _ in config:
+            print("still waiting for guest vm(s)...")
+            conn, (remote_cid, remote_port) = s.accept()
+            init_guest(conn, remote_cid)
+            client_thread = threading.Thread(target=run_sim, args=(remote_cid,), daemon=True)
             client_threads.append(client_thread)
-            if len(client_threads) == len(config):
-                break
-        
+            print(f"guest {remote_cid} has connected")
+       
         adjust_pcpu_to_vm_mapping()
+        print(runtime_vm_configs)
         apply_vcpu_pinning()
         print(runtime_vm_configs)
-        sim_started = True
+        # sim_started = True
         #for client_thread in client_threads:
         #    client_thread.start()
-    
+        while True:
+            pass
