@@ -2,7 +2,6 @@
   {
     "vm_cid": 35,
     "vm_name": "charmander",
-    "pcpu": 8,
     "workload_config": {
       "max_threads": 200,
       "slices": [
