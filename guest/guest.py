@@ -14,12 +14,14 @@ PORT = 9999
 
 def run_ufo(s):
     while True:
-        data = json.loads(s.recv(1024).decode('utf-8'))
+        raw_data = s.recv(1024).decode('utf-8')
+        print(f"raw_data {raw_data}")
+        data = json.loads(raw_data)
         if "vcpu_cnt_request" in data:
-            resize_cpus_thread = threading.Thread(target=ufo.resize_cpus_ufo, args=(s, data,), daemon=True)
+            resize_cpus_thread = threading.Thread(target=ufo.resize_cpus_ufo, args=(s, data,))
             resize_cpus_thread.start()
-        elif "type" in data and data["type"] == "time_slice":
-            sysbench_thread = threading.Thread(target=utils.run_sysbench, args=(s, data, CID,), daemon=True)
+        elif "threads" in data:
+            sysbench_thread = threading.Thread(target=utils.run_sysbench, args=(s, data, CID,))
             sysbench_thread.start()
         
 

@@ -1,6 +1,8 @@
 import os
 import re
 import subprocess
+import datetime
+import json
 
 # Includes both online and offline cpus
 def get_cpu_count():
@@ -36,10 +38,12 @@ def get_irq_list():
 
 
 def run_sysbench(s, data, cid):
+    print(f"running sysbench with data {data}")
     threads = data["threads"]
     interval = data["interval"] 
+    start_time = datetime.datetime.now()
     command = f"sudo sysbench cpu --time={interval} --threads={threads} --report-interval=1 run | ts '[%Y-%m-%d %H:%M:%S]'"
-    with open(f"sysbenchlog_{cid}.txt", "w") as log_file:
+    with open(f"./logs/sysbenchlog_{cid}.txt", "w") as log_file:
         # Run the command in a subprocess
         process = subprocess.Popen(
             command,
@@ -63,11 +67,12 @@ def run_sysbench(s, data, cid):
         else:
             log_file.write("Sysbench completed successfully.\n")
         
-        
-        ret["vcpu_ids"] = online_cpu_list()
        
-        end_time = datetime.datetime.now()
-        time_delta = str(end_time - start_time)
-        ret["time_elapsed"] = time_delta
-        
-        s.sendall(json.dumps(ret).encode('utf-8'))
+    ret = {}
+    ret["workload_completed"] = True
+   
+    end_time = datetime.datetime.now()
+    time_delta = str(end_time - start_time)
+    ret["time_elapsed"] = time_delta
+    
+    s.sendall(json.dumps(ret).encode('utf-8'))
