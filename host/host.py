@@ -94,7 +94,7 @@ def adjust_pcpu_to_vm_mapping():
            # collect spare cpus
             for (cid, runtime_config) in runtime_vm_configs.items():
                 while len(runtime_config["cpus"]) > cnt_cpus_req[cid]:
-                    spare_cpus.append(runtime_configs["cpus"].pop())
+                    spare_cpus.append(runtime_config["cpus"].pop())
 
             # distribute spare cpus
             for (cid, runtime_config) in runtime_vm_configs.items():
@@ -148,20 +148,25 @@ def apply_vcpu_pinning():
 
                 # if vcpus are in the old vcpu_cpu_mapping of the vm, but not in vcpu_ids, it means these ids have been removed. We add their cpus to spare_cpus and update the mapping.
                 vm_vcpu_cpu_mapping = runtime_config["vcpu_cpu_mapping"]
+                vm_vcpu_cpu_mapping_new = copy.deepcopy(vm_vcpu_cpu_mapping)
                 for vcpu_id in vm_vcpu_cpu_mapping.keys():
                     if vcpu_id not in vcpu_ids:
                         spare_cpus.append(vm_vcpu_cpu_mapping[vcpu_id])
-                        del vm_vcpu_cpu_mapping[vcpu_id]
-            
+                        del vm_vcpu_cpu_mapping_new[vcpu_id]
+
+                runtime_config["vcpu_cpu_mapping"] = vm_vcpu_cpu_mapping_new
+
             # redistribute the spare cpus to newly-added vcpu_ids
             for cid, runtime_config in runtime_vm_configs.items():
                 # if ids are in vcpu_ids, but not in vcpu_cpu_mapping of the vm, these ids are newly added and do not have cpus assigned yet. We pin these vcpus to the spare cpus.  
                 vm_vcpu_cpu_mapping = runtime_config["vcpu_cpu_mapping"]
+                vm_vcpu_cpu_mapping_new = copy.deepcopy(vm_vcpu_cpu_mapping)
                 for vcpu_id in vm_vcpu_ids_adjusted[cid]:
                     if vcpu_id not in vm_vcpu_cpu_mapping.keys():
                         cpu = spare_cpus.pop()
-                        vm_vcpu_cpu_mapping[vcpu_id] = cpu
+                        vm_vcpu_cpu_mapping_new[vcpu_id] = cpu
                         pin_vcpu_on_cpu(cid, vcpu_id, cpu)
+                runtime_config["vcpu_cpu_mapping"] = vm_vcpu_cpu_mapping_new
 
 
 def pin_vcpu_on_cpu(vm_cid, vcpu_id, pcpu_id):
