@@ -150,12 +150,18 @@ def pin_vcpu_on_cpu(vm_cid, vcpu_id, pcpu_id):
 
 
 # changes the level of simulation workload on the vm at cid 
-def adjust_workload(max_threads, percentage_load, cid):
+def adjust_workload(max_threads, percentage_load, interval, cid):
     global log_fds
     global conns
     log_fd = log_fds[cid]
-    conns[cid].sendall(f"percentage_load: {str(percentage_load)}".encode())
-    buf = conns[cid].recv(1024)
+
+    # run workload on guest vm
+    msg = { "threads": int(max_threads*percentage_load), "interval": interval }
+    conns[cid].sendall(json.dumps(msg).encode())
+
+    # guest vm replies when workload is completed
+    resp = json.loads(conns[cid].recv(1024).decode('utf-8'))
+
 
 def sim_workload(max_threads, slices, cid):
     for slice in slices:
@@ -164,8 +170,7 @@ def sim_workload(max_threads, slices, cid):
             for i in range(cnt):
                 sim_slices(max_threads, slice["slices"], cid)
         elif slice["type"] == "time_slice":
-                adjust_workload(max_threads, slice["percentage_load"], cid)
-                time.sleep(slice["interval"]/1000)
+                adjust_workload(max_threads, slice["percentage_load"], slice["interval"], cid)
 
 
 def run_sim(cid):
@@ -218,10 +223,9 @@ if __name__ == "__main__":
                 break
        
         adjust_pcpu_to_vm_mapping()
-        print(runtime_vm_configs)
         apply_vcpu_pinning()
-        print(runtime_vm_configs)
-        # sim_started = True
+        print(f"runtime_vm_configs (before simulation starts): {runtime_vm_configs}")
+        sim_started = True
         #for client_thread in client_threads:
         #    client_thread.start()
         while True:
