@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 
 # Includes both online and offline cpus
@@ -17,6 +18,22 @@ def online_cpu_list():
     with open(path, 'r') as file:
         content = file.read()
         return [int(x) for x in re.sub(r"(\d+)-(\d+)", expand_range, content).split(",")]
+
+
+# Get the list of IRQ
+def get_irq_list():
+    irq_list = []
+    try:
+        with open('/proc/interrupts', 'r') as f:
+            for line in f.readlines():
+                match = re.match(r"^\s*(\d+):", line)
+                if match:
+                    irq_list.append(match.group(1))
+    except Exception as e:
+        print(f"Failed to read /proc/interrupts: {str(e)}")
+    
+    return irq_list
+
 
 def run_sysbench(s, data, cid):
     threads = data["threads"]

@@ -1,5 +1,8 @@
 import utils
 import datetime
+import json
+
+CPU_COUNT = utils.get_cpu_count()
 
 def resize_cpus_ufo(s, data):
     start_time = datetime.datetime.now()
@@ -10,7 +13,7 @@ def resize_cpus_ufo(s, data):
         print("required cpu count is out of range")
         return
 
-    current_cpu_list = online_cpu_list()
+    current_cpu_list = utils.online_cpu_list()
     current_cpu_count = len(current_cpu_list)
     print("online cpu list (before change)", current_cpu_list)
 
@@ -29,9 +32,9 @@ def resize_cpus_ufo(s, data):
             os.system(f"echo 0 | sudo tee /sys/devices/system/cpu/cpu{i}/online")
             delta+=1
     
-    print("online cpu list (after change)", online_cpu_list())
+    print("online cpu list (after change)", utils.online_cpu_list())
      
-    ret["vcpu_ids"] = online_cpu_list()
+    ret["vcpu_ids"] = utils.online_cpu_list()
    
     end_time = datetime.datetime.now()
     time_delta = str(end_time - start_time)

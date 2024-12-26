@@ -1,21 +1,8 @@
 import os
-import ps_utils
+import psutil
 import datetime
 import subprocess
 
-# Get the list of IRQ
-def get_irq_list():
-    irq_list = []
-    try:
-        with open('/proc/interrupts', 'r') as f:
-            for line in f.readlines():
-                match = re.match(r"^\s*(\d+):", line)
-                if match:
-                    irq_list.append(match.group(1))
-    except Exception as e:
-        print(f"Failed to read /proc/interrupts: {str(e)}")
-    
-    return irq_list
 
 def balance_all_irq_affinity(cpu_list):
     # Build affinity mask for the given list of CPU
