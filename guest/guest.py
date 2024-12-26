@@ -12,7 +12,7 @@ import ufo
 CID = socket.VMADDR_CID_HOST
 PORT = 9999
 
-def run_ufo(s):
+def run_ufo(s, log_file):
     while True:
         raw_data = s.recv(1024).decode('utf-8')
         print(f"raw_data {raw_data}")
@@ -21,7 +21,7 @@ def run_ufo(s):
             resize_cpus_thread = threading.Thread(target=ufo.resize_cpus_ufo, args=(s, data,))
             resize_cpus_thread.start()
         elif "threads" in data:
-            sysbench_thread = threading.Thread(target=utils.run_sysbench, args=(s, data, CID,))
+            sysbench_thread = threading.Thread(target=utils.run_sysbench, args=(s, data, log_file))
             sysbench_thread.start()
         
 
@@ -43,6 +43,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="guest", description="guestvm")
     parser.add_argument("framework", choices=["ufo", "cps"])
     parser.add_argument("mode", choices=["cli", "sim"])
+    parser.add_argument("log_file")
     args = parser.parse_args()
 
 
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     print("online CPUs:", utils.online_cpu_list())
     
     if args.framework == "ufo":
-        run_ufo(s)
+        run_ufo(s, log_file)
     
     if args.framework == "cps":
         if args.mode == "sim":

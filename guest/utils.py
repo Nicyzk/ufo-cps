@@ -37,13 +37,13 @@ def get_irq_list():
     return irq_list
 
 
-def run_sysbench(s, data, cid):
+def run_sysbench(s, data, log_file):
     print(f"running sysbench with data {data}")
     threads = data["threads"]
     interval = data["interval"] 
     start_time = datetime.datetime.now()
     command = f"sudo sysbench cpu --time={interval} --threads={threads} --report-interval=1 run | ts '[%Y-%m-%d %H:%M:%S]'"
-    with open(f"./logs/sysbenchlog_{cid}.txt", "w") as log_file:
+    with open(f"./logs/{log_file}.txt", "w") as log_file:
         # Run the command in a subprocess
         process = subprocess.Popen(
             command,
