@@ -8,16 +8,16 @@
       "slices": [
         {
           "type": "repeater",
-          "cnt": 15,
+          "cnt": 3,
           "slices": [
             {
               "type": "time_slice",
-              "percentage_load": 0.2,
+              "percentage_load": 0.4,
               "interval": 5
             },
             {
               "type": "time_slice",
-              "percentage_load": 0.4,
+              "percentage_load": 0.8,
               "interval": 5
             }
           ]
@@ -34,7 +34,7 @@
       "slices": [
         {
           "type": "repeater",
-          "cnt": 15,
+          "cnt": 3,
           "slices": [
             {
               "type": "time_slice",
