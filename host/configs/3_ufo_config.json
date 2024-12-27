@@ -1,0 +1,42 @@
+[
+	{
+		"vm_cid": 35,
+		"vm_name": "charmander",
+		"workload_config": {
+			"max_threads": 40,
+			"slices": [
+				{
+					"type": "repeater",
+					"cnt": 1,
+					"slices": [
+						{
+							"type": "time_slice",
+							"percentage_load": 1.0,
+							"interval": 120
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"vm_cid": 36,
+		"vm_name": "charmander2",
+		"workload_config": {
+			"max_threads": 40,
+			"slices": [
+				{
+					"type": "repeater",
+					"cnt": 1,
+					"slices": [
+						{
+							"type": "time_slice",
+							"percentage_load": 1.0,
+							"interval": 120
+						}
+					]
+				}
+			]
+		}
+	}
+]

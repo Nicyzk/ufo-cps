@@ -60,14 +60,9 @@ def reset_vcpu_pins(config, vm_cid):
         cmd = f"sudo virsh vcpupin {vm_name} {i} r"
         print(f"Running: {cmd}")
         utils.run_command(cmd)
-    
-    # create runtime_config for vm
-    with runtime_vm_configs_lock:
-        runtime_config = runtime_vm_configs[vm_cid] = {}
-
 
 # initializes a guest vm
-def init_guest(conn, cid):
+def init_guest(conn, cid, sched):
     global log_fds
     global conns
     global config
@@ -87,8 +82,13 @@ def init_guest(conn, cid):
     t = threading.Thread(target=client_reader, args=(cid,), daemon=True)
     t.start()
 
-    # reset all vcpu pins
-    reset_vcpu_pins(config, cid)
+    if sched == "ufo":
+        # reset all vcpu pins
+        reset_vcpu_pins(config, cid)
+
+    # create runtime_config for vm
+    with runtime_vm_configs_lock:
+        runtime_config = runtime_vm_configs[cid] = {}
 
 
 # Only for UFO! This adjusts the core assignment mapping, but does not actually change core allocation. It occurs at start of simulation and periodically thereafter
@@ -333,7 +333,7 @@ if __name__ == "__main__":
             else:
                 expected_vms.remove(remote_cid)
            
-            init_guest(conn, remote_cid)
+            init_guest(conn, remote_cid, args.sched)
             
             t = threading.Thread(target=run_sim, args=(remote_cid,))
             client_sim_threads.append(t)     
