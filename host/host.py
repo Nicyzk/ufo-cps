@@ -204,7 +204,8 @@ def apply_vcpu_pinning():
                 
                 # match the newly added vcpus to available cpus
                 for i, vcpu_id in enumerate(vcpu_ids_that_req_pinning):
-                    vm_vcpu_cpu_mapping_new[vcpu_id] = allocated_cpu_ids[i]
+                    vm_vcpu_cpu_mapping_new[vcpu_id] = allocated_cpu_ids[i] 
+                    pin_vcpu_on_cpu(cid, vcpu_id, allocated_cpu_ids[i])
 
                 runtime_config["vcpu_cpu_mapping"] = vm_vcpu_cpu_mapping_new
 
