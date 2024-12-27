@@ -7,7 +7,7 @@
       "slices": [
         {
           "type": "repeater",
-          "cnt": 3,
+          "cnt": 2,
           "slices": [
             {
               "type": "time_slice",
@@ -17,6 +17,31 @@
             {
               "type": "time_slice",
               "percentage_load": 0.4,
+              "interval": 5
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "vm_cid": 36,
+    "vm_name": "charmander2",
+    "workload_config": {
+      "max_threads": 200,
+      "slices": [
+        {
+          "type": "repeater",
+          "cnt": 2,
+          "slices": [
+            {
+              "type": "time_slice",
+              "percentage_load": 0.4,
+              "interval": 5
+            },
+            {
+              "type": "time_slice",
+              "percentage_load": 0.2,
               "interval": 5
             }
           ]
