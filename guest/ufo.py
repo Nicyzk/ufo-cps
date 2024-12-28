@@ -21,7 +21,7 @@ def resize_cpus_ufo(s, data):
     # delta is number of cpu cores you want to add
     delta = required_cpu_count - current_cpu_count
 
-    for i in range(CPU_COUNT-1, -1, -1):
+    for i in range(CPU_COUNT):
         if delta == 0:
             break
 
@@ -36,7 +36,7 @@ def resize_cpus_ufo(s, data):
     print("online cpu list (after change)", utils.online_cpu_list())
      
     ret["vcpu_ids"] = utils.online_cpu_list()
-   
+    print(ret["vcpu_ids"])
     end_time = datetime.datetime.now()
     time_delta = str(end_time - start_time)
     ret["time_elapsed"] = time_delta

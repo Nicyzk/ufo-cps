@@ -53,7 +53,7 @@ if __name__ == "__main__":
     print("online CPUs:", utils.online_cpu_list())
     
     if args.framework == "ufo":
-        run_ufo(s, log_file)
+        run_ufo(s, args.log_file)
     
     if args.framework == "cps":
         if args.mode == "sim":
