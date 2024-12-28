@@ -22,6 +22,9 @@ runtime_vm_configs_lock = threading.Lock()
 reader_cv = {} # condition variables to handle reading of data from each guest vm
 reader_cv_data = {}
 sim_started = False
+total_cpu = len(utils.get_cpu_list())
+vm_migration = False
+log_file = "cores_log"
 
 # allows a thread to retrieve data that is meant for it
 def get_reader_cv_data(cid, req_key):
@@ -96,9 +99,15 @@ def adjust_pcpu_to_vm_mapping():
     global config
     global runtime_vm_configs
     global sim_started
+    global total_cpu
+    global vm_migration
 
     cpu_list = utils.get_cpu_list()
-    total_cpus = len(cpu_list)
+    if vm_migration:
+        total_cpus = total_cpu
+        print(f"adjust_pcpu_to_vm_mapping total_cpus set to {total_cpus}")
+    else :
+        total_cpus = len(cpu_list)
     total_vms = len(config)
 
     if total_vms == 0 or total_cpus == 0:
@@ -127,29 +136,52 @@ def adjust_pcpu_to_vm_mapping():
                 cnt_cpus_req[cid] = math.floor((runtime_config["threads"] / total_threads) * total_cpus)
             
             # spare cpus initialized to cpus that have not been pinned previously
-            spare_cpus = utils.get_cpu_list()
+            if vm_migration:
+                spare_cpus = utils.get_cpu_list()[:total_cpus]
+                print(f"adjust_pcpu_to_vm_mapping spare_cpus set to {spare_cpus}")
+            else:
+                spare_cpus = utils.get_cpu_list()
+
             for runtime_config in runtime_vm_configs.values():
                 for cpu in runtime_config["cpus"]:
-                    spare_cpus.remove(cpu)
+                    if cpu in spare_cpus:
+                        spare_cpus.remove(cpu)
             
-           
            # add to spare cpus if cpu is no longer required
             for (cid, runtime_config) in runtime_vm_configs.items():
                 while len(runtime_config["cpus"]) > cnt_cpus_req[cid]:
-                    spare_cpus.append(runtime_config["cpus"].pop())
+                    cpu = runtime_config["cpus"].pop()
+                    if cpu < total_cpus:
+                        spare_cpus.append(cpu)
 
             # distribute spare cpus
+            if vm_migration:
+                print(f"adjust_pcpu_to_vm_mapping spare_cpus left {spare_cpus}")
+
             for (cid, runtime_config) in runtime_vm_configs.items():
                 while len(runtime_config["cpus"]) < cnt_cpus_req[cid]:
                     runtime_config["cpus"].append(spare_cpus.pop())
 
+#changing the total_cpu to change the number of pcpu and vcpu
+def simulate_cores(cores):
+    global total_cpu
+    global vm_migration
+    print(f"Starting simulate cores and cores is none: {cores is None}")
+    if cores is None:
+        return 
+    for slice in cores:
+        time.sleep(slice["time"])
+        if vm_migration:
+            total_cpu = slice["pcpu"]
+    
 
 # Only for UFO! Adjust number of vcpus to match pcpu and then apply cpu pinning. Note UFO's assumption is that 1 vcpu maps to 1 cpu.
 def apply_vcpu_pinning():
     global conns
     global sim_started
     global runtime_vm_configs
-    
+    global log_file
+
     # if the simulation has not started, we need to 1. adjust vcpu count 2. create vcpu_cpu_mapping 3. apply vcpu pinning
     if not sim_started:
         with runtime_vm_configs_lock:
@@ -157,7 +189,10 @@ def apply_vcpu_pinning():
                 # adjust vcpu count on guest vm
                 msg = { "vcpu_cnt_request": len(runtime_config["cpus"]) }
                 conns[cid].sendall(json.dumps(msg).encode())
-                
+                with open(f"./logs/{log_file}.txt", "a") as log_file_writer:
+                    utc_timestamp = datetime.utcnow().strftime("[%Y-%m-%d %H:%M:%S]")
+                    log_file_writer.write(f"{utc_timestamp} cid: {cid} pcpu:{len(runtime_config["cpus"])}\n")
+
                 # guest vm returns adjusted vcpu_id
                 resp = get_reader_cv_data(cid, "vcpu_ids")
                 vcpu_ids = resp["vcpu_ids"]
@@ -179,7 +214,10 @@ def apply_vcpu_pinning():
                 # adjust vcpu count on guest vm
                 msg = { "vcpu_cnt_request": len(runtime_config["cpus"]) }
                 conns[cid].sendall(json.dumps(msg).encode())
-                
+                with open(f"./logs/{log_file}.txt", "a") as log_file_writer:
+                    utc_timestamp = datetime.utcnow().strftime("[%Y-%m-%d %H:%M:%S]")
+                    log_file_writer.write(f"{utc_timestamp} cid: {cid} pcpu:{len(runtime_config["cpus"])}\n")
+
                 # guest vm returns adjusted vcpu_id
                 resp = get_reader_cv_data(cid, "vcpu_ids")
                 vcpu_ids = resp["vcpu_ids"]
@@ -242,16 +280,23 @@ def core_allocation_callback():
         time.sleep(5.0) 
 
 # changes the level of simulation workload on the vm at cid 
-def adjust_workload(max_threads, percentage_load, interval, cid):
+def adjust_workload(max_threads, percentage_load, interval, cid, cores = None):
     global log_fds
     global conns
+    global vm_migration
     log_fd = log_fds[cid]
+
+    if cores is not None and vm_migration:
+        core_t = threading.Thread(target=simulate_cores, args=(cores,))
+        core_t.start()
 
     # run workload on guest vm
     new_workload = int(max_threads*percentage_load)
     msg = { "threads": new_workload, "interval": interval }
     print(f"sent to vm with cid: {cid}, msg: {msg}")
     conns[cid].sendall(json.dumps(msg).encode())
+
+
 
     # track the new workload on vm
     with runtime_vm_configs_lock:
@@ -263,13 +308,17 @@ def adjust_workload(max_threads, percentage_load, interval, cid):
 
 
 def sim_workload(max_threads, slices, cid):
+    global vm_migration
     for slice in slices:
         if slice["type"] == "repeater":
             cnt = slice["cnt"]
             for i in range(cnt):
                 sim_workload(max_threads, slice["slices"], cid)
         elif slice["type"] == "time_slice":
-                adjust_workload(max_threads, slice["percentage_load"], slice["interval"], cid)
+            cores = slice.get("cores", None)
+            if cores is not None and vm_migration:
+                print(f"cores is not None")
+            adjust_workload(max_threads, slice["percentage_load"], slice["interval"], cid, cores)
 
 
 def run_sim(cid):
@@ -324,6 +373,8 @@ if __name__ == "__main__":
         client_reader_threads = []
 
         expected_vms = [c["vm_cid"] for c in config]
+        vm_migration = vm_migration or any(vm.get("vm_migration", False) for vm in config)
+        print(f"vm_migration flag set to : {vm_migration}")
         while True:
             print("still waiting for guest vm(s)...")
             conn, (remote_cid, remote_port) = s.accept()
@@ -347,6 +398,9 @@ if __name__ == "__main__":
             apply_vcpu_pinning()
             print(f"runtime_vm_configs (before simulation starts): {runtime_vm_configs}")
             sim_started = True
+        
+        if args.sched != "ufo":
+            vm_migration = False
         
         for t in client_sim_threads:
             t.start()
