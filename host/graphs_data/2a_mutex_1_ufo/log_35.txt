@@ -1,0 +1,65 @@
+Sysbench is running in the background with the following parameters: interval=20, threads=32 ...
+stress-ng: info:  [8000] setting to a 20 secs run per stressor
+stress-ng: info:  [8000] dispatching hogs: 32 mutex
+stress-ng: info:  [8000] note: /proc/sys/kernel/sched_autogroup_enabled is 1 and this can impact scheduling throughput for processes not attached to a tty. Setting this to 0 may improve performance metrics
+stress-ng: metrc: [8000] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: metrc: [8000]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: metrc: [8000] mutex           3396834     20.32     20.81     62.63    167137.61       40710.91
+stress-ng: info:  [8000] skipped: 0
+stress-ng: info:  [8000] passed: 32: mutex (32)
+stress-ng: info:  [8000] failed: 0
+stress-ng: info:  [8000] metrics untrustworthy: 0
+stress-ng: info:  [8000] successful run completed in 21.92 secs
+Sysbench completed successfully.
+Sysbench is running in the background with the following parameters: interval=20, threads=28 ...
+stress-ng: info:  [8107] setting to a 20 secs run per stressor
+stress-ng: info:  [8107] dispatching hogs: 28 mutex
+stress-ng: info:  [8107] note: /proc/sys/kernel/sched_autogroup_enabled is 1 and this can impact scheduling throughput for processes not attached to a tty. Setting this to 0 may improve performance metrics
+stress-ng: metrc: [8107] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: metrc: [8107]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: metrc: [8107] mutex           4685457     20.18     30.13     95.19    232235.05       37388.95
+stress-ng: info:  [8107] skipped: 0
+stress-ng: info:  [8107] passed: 28: mutex (28)
+stress-ng: info:  [8107] failed: 0
+stress-ng: info:  [8107] metrics untrustworthy: 0
+stress-ng: info:  [8107] successful run completed in 21.87 secs
+Sysbench completed successfully.
+Sysbench is running in the background with the following parameters: interval=20, threads=35 ...
+stress-ng: info:  [8282] setting to a 20 secs run per stressor
+stress-ng: info:  [8282] dispatching hogs: 35 mutex
+stress-ng: info:  [8282] note: /proc/sys/kernel/sched_autogroup_enabled is 1 and this can impact scheduling throughput for processes not attached to a tty. Setting this to 0 may improve performance metrics
+stress-ng: metrc: [8282] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: metrc: [8282]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: metrc: [8282] mutex           2168709     20.34     16.34     47.84    106609.23       33787.62
+stress-ng: info:  [8282] skipped: 0
+stress-ng: info:  [8282] passed: 35: mutex (35)
+stress-ng: info:  [8282] failed: 0
+stress-ng: info:  [8282] metrics untrustworthy: 0
+stress-ng: info:  [8282] successful run completed in 21.88 secs
+Sysbench completed successfully.
+Sysbench is running in the background with the following parameters: interval=20, threads=27 ...
+stress-ng: info:  [8406] setting to a 20 secs run per stressor
+stress-ng: info:  [8406] dispatching hogs: 27 mutex
+stress-ng: info:  [8406] note: /proc/sys/kernel/sched_autogroup_enabled is 1 and this can impact scheduling throughput for processes not attached to a tty. Setting this to 0 may improve performance metrics
+stress-ng: metrc: [8406] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: metrc: [8406]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: metrc: [8406] mutex           1768728     20.36     15.32     47.14     86859.50       28319.35
+stress-ng: info:  [8406] skipped: 0
+stress-ng: info:  [8406] passed: 27: mutex (27)
+stress-ng: info:  [8406] failed: 0
+stress-ng: info:  [8406] metrics untrustworthy: 0
+stress-ng: info:  [8406] successful run completed in 21.88 secs
+Sysbench completed successfully.
+Sysbench is running in the background with the following parameters: interval=20, threads=4 ...
+stress-ng: info:  [8496] setting to a 20 secs run per stressor
+stress-ng: info:  [8496] dispatching hogs: 4 mutex
+stress-ng: info:  [8496] note: /proc/sys/kernel/sched_autogroup_enabled is 1 and this can impact scheduling throughput for processes not attached to a tty. Setting this to 0 may improve performance metrics
+stress-ng: metrc: [8496] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: metrc: [8496]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: metrc: [8496] mutex           1131911     20.86      6.59     19.87     54254.32       42774.34
+stress-ng: info:  [8496] skipped: 0
+stress-ng: info:  [8496] passed: 4: mutex (4)
+stress-ng: info:  [8496] failed: 0
+stress-ng: info:  [8496] metrics untrustworthy: 0
+stress-ng: info:  [8496] successful run completed in 20.88 secs
+Sysbench completed successfully.

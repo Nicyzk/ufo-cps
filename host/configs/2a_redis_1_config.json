@@ -12,27 +12,32 @@
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.8,
-				"interval":  5
+				"interval": 10000,
+				"workload": "redis"
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.72,
-				"interval":  5
+				"interval": 10000,
+				"workload": "redis"
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.89,
-				"interval":  5
+				"interval": 10000,
+				"workload": "redis"
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.69,
-				"interval":  5
+				"interval": 10000,
+				"workload": "redis"
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.10,
-				"interval":  5
+				"interval": 10000,
+				"workload": "redis"
 			  }
 			]
 		  }
@@ -52,27 +57,32 @@
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.72,
-				"interval":  5
+				"interval": 10000,
+				"workload": "redis"
 			  },
 			  {
 				"type": "time_slice",
-				"percentage_load": 0.05,
-				"interval":  5
+				"percentage_load": 0.1,
+				"interval": 10000,
+				"workload": "redis"
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.91,
-				"interval":  5
+				"interval": 10000,
+				"workload": "redis"
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.74,
-				"interval":  5
+				"interval": 10000,
+				"workload": "redis"
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.49,
-				"interval":  5
+				"interval": 10000,
+				"workload": "redis"
 			  }
 			]
 		  }

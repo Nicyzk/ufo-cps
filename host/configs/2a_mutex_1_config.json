@@ -1,0 +1,93 @@
+[
+	{
+	  "vm_cid": 35,
+	  "vm_name": "charmander",
+	  "workload_config": {
+		"max_threads": 40,
+		"slices": [
+		  {
+			"type": "repeater",
+			"cnt": 1,
+			"slices": [
+			  {
+				"type": "time_slice",
+				"percentage_load": 0.8,
+				"interval": 20,
+				"workload": "mutex"
+			  },
+			  {
+				"type": "time_slice",
+				"percentage_load": 0.72,
+				"interval": 20,
+				"workload": "mutex"
+			  },
+			  {
+				"type": "time_slice",
+				"percentage_load": 0.89,
+				"interval": 20,
+				"workload": "mutex"
+			  },
+			  {
+				"type": "time_slice",
+				"percentage_load": 0.69,
+				"interval": 20,
+				"workload": "mutex"
+			  },
+			  {
+				"type": "time_slice",
+				"percentage_load": 0.10,
+				"interval": 20,
+				"workload": "mutex"
+			  }
+			]
+		  }
+		]
+	  }
+	},
+	{
+	  "vm_cid": 36,
+	  "vm_name": "charmander2",
+	  "workload_config": {
+		"max_threads": 40,
+		"slices": [
+		  {
+			"type": "repeater",
+			"cnt": 1,
+			"slices": [
+			  {
+				"type": "time_slice",
+				"percentage_load": 0.72,
+				"interval": 20,
+				"workload": "mutex"
+			  },
+			  {
+				"type": "time_slice",
+				"percentage_load": 0.1,
+				"interval": 20,
+				"workload": "mutex"
+			  },
+			  {
+				"type": "time_slice",
+				"percentage_load": 0.91,
+				"interval": 20,
+				"workload": "mutex"
+			  },
+			  {
+				"type": "time_slice",
+				"percentage_load": 0.74,
+				"interval": 20,
+				"workload": "mutex"
+			  },
+			  {
+				"type": "time_slice",
+				"percentage_load": 0.49,
+				"interval": 20,
+				"workload": "mutex"
+			  }
+			]
+		  }
+		]
+	  }
+	}
+  ]
+  
