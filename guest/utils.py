@@ -98,7 +98,7 @@ def run_redis(s, data, log_file):
         )
 
         # Write the output to the log file
-        log_file.write(f"Sysbench is running in the background with the following parameters: interval={interval}, threads={threads} ...\n")
+        log_file.write(f"Sysbench is running in the background with the following parameters: requests={requests}, threads={threads} ...\n")
         for line in process.stdout:
             log_file.write(line)  # Write each line to the file
 
