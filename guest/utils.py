@@ -46,7 +46,7 @@ def run_sysbench(s, data, log_file, mutex=False):
     if mutex:
         command = f"sudo stress-ng --mutex {threads} --timeout {interval}s --metrics-brief"
 
-    with open(f"./logs/{log_file}.txt", "w") as log_file:
+    with open(f"./logs/{log_file}.txt", "a") as log_file:
         # Run the command in a subprocess
         process = subprocess.Popen(
             command,
@@ -87,7 +87,7 @@ def run_redis(s, data, log_file):
     start_time = datetime.datetime.now()
     command = f"redis-benchmark -c {threads} -n {requests}"
 
-    with open(f"./logs/{log_file}.txt", "w") as log_file:
+    with open(f"./logs/{log_file}.txt", "a") as log_file:
         # Run the command in a subprocess
         process = subprocess.Popen(
             command,

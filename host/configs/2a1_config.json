@@ -56,7 +56,7 @@
 			  },
 			  {
 				"type": "time_slice",
-				"percentage_load": 0.05,
+				"percentage_load": 0.1,
 				"interval": 20
 			  },
 			  {
