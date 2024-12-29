@@ -273,6 +273,7 @@ def pin_vcpu_on_cpu(vm_cid, vcpu_id, pcpu_id):
 
 # Only for UFO! A callback that runs every 5 seconds to redistribute cores to vms
 def core_allocation_callback():
+    global runtime_vm_configs
     while True:
         adjust_pcpu_to_vm_mapping()
         apply_vcpu_pinning()
@@ -303,6 +304,7 @@ def adjust_workload(max_threads, percentage_load, interval, cid, cores = None, w
         runtime_vm_configs[cid]["threads"] = new_workload
 
     # guest vm replies when workload is completed
+    print(f"waiting {percentage_load} for workload to complete")
     resp = get_reader_cv_data(cid, "workload_completed")
     print(f"vm with cid:{cid} completed workload with response:{resp}, continuing to next workload")
 
@@ -319,6 +321,7 @@ def sim_workload(max_threads, slices, cid):
             if cores is not None and vm_migration:
                 print(f"cores is not None")
             workload = slice.get("workload", "sysbench")
+            print(f"workload is {workload}")
             adjust_workload(max_threads, slice["percentage_load"], slice["interval"], cid, cores, workload)
 
 

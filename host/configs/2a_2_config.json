@@ -12,27 +12,27 @@
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.8,
-				"interval": 20
+				"interval":  5
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.72,
-				"interval": 20
+				"interval":  5
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.89,
-				"interval": 20
+				"interval":  5
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.69,
-				"interval": 20
+				"interval":  5
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.10,
-				"interval": 20
+				"interval":  5
 			  }
 			]
 		  }
@@ -52,27 +52,27 @@
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.72,
-				"interval": 20
+				"interval":  5
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.05,
-				"interval": 20
+				"interval":  5
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.91,
-				"interval": 20
+				"interval":  5
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.74,
-				"interval": 20
+				"interval":  5
 			  },
 			  {
 				"type": "time_slice",
 				"percentage_load": 0.49,
-				"interval": 20
+				"interval":  5
 			  }
 			]
 		  }

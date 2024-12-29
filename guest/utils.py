@@ -38,7 +38,7 @@ def get_irq_list():
 
 
 def run_sysbench(s, data, log_file, mutex=False):
-    print(f"running sysbench with data {data}")
+    print(f"running sysbench with data {data} mutex={mutex}")
     threads = data["threads"]
     interval = data["interval"] 
     start_time = datetime.datetime.now()

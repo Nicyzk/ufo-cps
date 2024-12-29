@@ -24,7 +24,8 @@ def run_ufo(s, log_file):
             sysbench_thread = threading.Thread(target=utils.run_sysbench, args=(s, data, log_file, True))
             sysbench_thread.start()
         elif "sysbench" in data:
-            sysbench_thread = threading.Thread(target=utils.run_sysbench, args=(s, data, log_file))
+            print(f"running sysbench with data {data}")
+            sysbench_thread = threading.Thread(target=utils.run_sysbench, args=(s, data, log_file, False))
             sysbench_thread.start()
         elif "redis" in data:
             redis_thread = threading.Thread(target=utils.run_redis, args=(s, data, log_file))
