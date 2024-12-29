@@ -37,12 +37,56 @@ def get_irq_list():
     return irq_list
 
 
-def run_sysbench(s, data, log_file):
+def run_sysbench(s, data, log_file, mutex=False):
     print(f"running sysbench with data {data}")
     threads = data["threads"]
     interval = data["interval"] 
     start_time = datetime.datetime.now()
     command = f"sudo sysbench cpu --time={interval} --threads={threads} --report-interval=1 run | ts '[%Y-%m-%d %H:%M:%S]'"
+    if mutex:
+        command = f"sudo stress-ng --mutex {threads} --timeout {interval}s --metrics-brief"
+
+    with open(f"./logs/{log_file}.txt", "w") as log_file:
+        # Run the command in a subprocess
+        process = subprocess.Popen(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        # Write the output to the log file
+        log_file.write(f"Sysbench is running in the background with the following parameters: interval={interval}, threads={threads} ...\n")
+        for line in process.stdout:
+            log_file.write(line)  # Write each line to the file
+
+        # Wait for the process to finish
+        process.wait()
+
+        # Log errors, if any
+        if process.returncode != 0:
+            log_file.write(f"Error: {process.stderr.read().strip()}\n")
+        else:
+            log_file.write("Sysbench completed successfully.\n")
+        
+       
+    ret = {}
+    ret["workload_completed"] = True
+   
+    end_time = datetime.datetime.now()
+    time_delta = str(end_time - start_time)
+    ret["time_elapsed"] = time_delta
+    
+    s.sendall(json.dumps(ret).encode('utf-8'))
+
+def run_redis(s, data, log_file):
+    print(f"running sysbench with data {data}")
+    threads = data["threads"]
+    requests = data["requests"] 
+    start_time = datetime.datetime.now()
+    command = f"redis-benchmark -c {threads} -n {requests}"
+
     with open(f"./logs/{log_file}.txt", "w") as log_file:
         # Run the command in a subprocess
         process = subprocess.Popen(

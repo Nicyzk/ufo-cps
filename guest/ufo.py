@@ -21,7 +21,7 @@ def resize_cpus_ufo(s, data):
     # delta is number of cpu cores you want to add
     delta = required_cpu_count - current_cpu_count
 
-    for i in range(CPU_COUNT):
+    for i in range(CPU_COUNT-1, -1, -1):
         if delta == 0:
             break
 

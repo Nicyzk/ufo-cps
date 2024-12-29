@@ -12,12 +12,20 @@
             {
               "type": "time_slice",
               "percentage_load": 0.2,
-              "interval": 5
+              "interval": 5,
+              "workload": "sysbench"
             },
             {
               "type": "time_slice",
               "percentage_load": 0.4,
-              "interval": 5
+              "interval": 5,
+              "workload": "mutex"
+            },
+            {
+              "type": "time_slice",
+              "percentage_load": 0.4,
+              "requests": 5,
+              "workload": "redis"
             }
           ]
         }

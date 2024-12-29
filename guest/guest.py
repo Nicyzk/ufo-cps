@@ -20,9 +20,15 @@ def run_ufo(s, log_file):
         if "vcpu_cnt_request" in data:
             resize_cpus_thread = threading.Thread(target=ufo.resize_cpus_ufo, args=(s, data,))
             resize_cpus_thread.start()
-        elif "threads" in data:
+        elif "mutex" in data:
+            sysbench_thread = threading.Thread(target=utils.run_sysbench, args=(s, data, log_file, True))
+            sysbench_thread.start()
+        elif "sysbench" in data:
             sysbench_thread = threading.Thread(target=utils.run_sysbench, args=(s, data, log_file))
             sysbench_thread.start()
+        elif "redis" in data:
+            redis_thread = threading.Thread(target=utils.run_redis, args=(s, data, log_file))
+            redis_thread.start()
         
 
 def run_cps(s):  

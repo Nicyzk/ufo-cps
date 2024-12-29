@@ -280,7 +280,7 @@ def core_allocation_callback():
         time.sleep(5.0) 
 
 # changes the level of simulation workload on the vm at cid 
-def adjust_workload(max_threads, percentage_load, interval, cid, cores = None):
+def adjust_workload(max_threads, percentage_load, interval, cid, cores = None, workload = "sysbench"):
     global log_fds
     global conns
     global vm_migration
@@ -292,7 +292,7 @@ def adjust_workload(max_threads, percentage_load, interval, cid, cores = None):
 
     # run workload on guest vm
     new_workload = int(max_threads*percentage_load)
-    msg = { "threads": new_workload, "interval": interval }
+    msg = { "threads": new_workload, "interval": interval, "workload": workload }
     print(f"sent to vm with cid: {cid}, msg: {msg}")
     conns[cid].sendall(json.dumps(msg).encode())
 
@@ -318,7 +318,8 @@ def sim_workload(max_threads, slices, cid):
             cores = slice.get("cores", None)
             if cores is not None and vm_migration:
                 print(f"cores is not None")
-            adjust_workload(max_threads, slice["percentage_load"], slice["interval"], cid, cores)
+            workload = slice.get("workload", "sysbench")
+            adjust_workload(max_threads, slice["percentage_load"], slice["interval"], cid, cores, workload)
 
 
 def run_sim(cid):
