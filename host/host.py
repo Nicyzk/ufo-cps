@@ -135,6 +135,17 @@ def adjust_pcpu_to_vm_mapping():
             for (cid, runtime_config) in runtime_vm_configs.items():
                 cnt_cpus_req[cid] = math.floor((runtime_config["threads"] / total_threads) * total_cpus)
             
+            extras = 0
+            for (cid, cpu_req) in cnt_cpus_req.items():
+                if cpu_req == 0:
+                    cnt_cpus_req[cid] = 1
+                    extras += 1
+
+            for (cid, cpu_req) in cnt_cpus_req.items():
+                if extras > 0 and cnt_cpus_req[cid] > 1:
+                    cnt_cpus_req[cid] -= 1
+                    extras -= 1
+            
             # spare cpus initialized to cpus that have not been pinned previously
             if vm_migration:
                 spare_cpus = utils.get_cpu_list()[:total_cpus]
@@ -161,6 +172,7 @@ def adjust_pcpu_to_vm_mapping():
             for (cid, runtime_config) in runtime_vm_configs.items():
                 while len(runtime_config["cpus"]) < cnt_cpus_req[cid]:
                     runtime_config["cpus"].append(spare_cpus.pop())
+            
 
 #changing the total_cpu to change the number of pcpu and vcpu
 def simulate_cores(cores):
