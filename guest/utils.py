@@ -85,7 +85,7 @@ def run_redis(s, data, log_file):
     threads = data["threads"]
     requests = data["interval"] 
     start_time = datetime.datetime.now()
-    command = f"redis-benchmark -c {threads} -n {requests}"
+    command = f"redis-benchmark -t set,get -c {threads} -n {requests}"
 # redis-benchmark -c 10 -n 10000
     with open(f"./logs/{log_file}.txt", "a") as log_file:
         # Run the command in a subprocess
