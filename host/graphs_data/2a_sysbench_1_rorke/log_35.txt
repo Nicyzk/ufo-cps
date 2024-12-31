@@ -1,0 +1,248 @@
+Sysbench is running in the background with the following parameters: interval=20, threads=32 ...
+[2024-12-30 09:05:55] sysbench 1.0.20 (using system LuaJIT 2.1.1700206165)
+[2024-12-30 09:05:55] 
+[2024-12-30 09:05:55] Running the test with following options:
+[2024-12-30 09:05:55] Number of threads: 32
+[2024-12-30 09:05:55] Report intermediate results every 1 second(s)
+[2024-12-30 09:05:55] Initializing random number generator from current time
+[2024-12-30 09:05:55] 
+[2024-12-30 09:05:55] 
+[2024-12-30 09:05:55] Prime numbers limit: 10000
+[2024-12-30 09:05:55] 
+[2024-12-30 09:05:55] Initializing worker threads...
+[2024-12-30 09:05:55] 
+[2024-12-30 09:05:55] Threads started!
+[2024-12-30 09:05:55] 
+[2024-12-30 09:05:56] [ 1s ] thds: 32 eps: 1569.76 lat (ms,95%): 34.95
+[2024-12-30 09:05:57] [ 2s ] thds: 32 eps: 1638.56 lat (ms,95%): 29.72
+[2024-12-30 09:05:58] [ 3s ] thds: 32 eps: 1666.85 lat (ms,95%): 29.72
+[2024-12-30 09:05:59] [ 4s ] thds: 32 eps: 1641.55 lat (ms,95%): 29.72
+[2024-12-30 09:06:00] [ 5s ] thds: 32 eps: 1640.86 lat (ms,95%): 30.26
+[2024-12-30 09:06:01] [ 6s ] thds: 32 eps: 1665.37 lat (ms,95%): 31.37
+[2024-12-30 09:06:02] [ 7s ] thds: 32 eps: 1632.49 lat (ms,95%): 29.72
+[2024-12-30 09:06:03] [ 8s ] thds: 32 eps: 1704.39 lat (ms,95%): 29.72
+[2024-12-30 09:06:04] [ 9s ] thds: 32 eps: 1654.04 lat (ms,95%): 29.72
+[2024-12-30 09:06:05] [ 10s ] thds: 32 eps: 1668.60 lat (ms,95%): 29.72
+[2024-12-30 09:06:06] [ 11s ] thds: 32 eps: 1641.12 lat (ms,95%): 29.72
+[2024-12-30 09:06:07] [ 12s ] thds: 32 eps: 1641.65 lat (ms,95%): 29.72
+[2024-12-30 09:06:08] [ 13s ] thds: 32 eps: 1707.81 lat (ms,95%): 29.19
+[2024-12-30 09:06:09] [ 14s ] thds: 32 eps: 1628.14 lat (ms,95%): 29.72
+[2024-12-30 09:06:10] [ 15s ] thds: 32 eps: 1636.97 lat (ms,95%): 29.72
+[2024-12-30 09:06:11] [ 16s ] thds: 32 eps: 1698.93 lat (ms,95%): 29.72
+[2024-12-30 09:06:12] [ 17s ] thds: 32 eps: 1674.32 lat (ms,95%): 29.19
+[2024-12-30 09:06:13] [ 18s ] thds: 32 eps: 1691.40 lat (ms,95%): 29.72
+[2024-12-30 09:06:14] [ 19s ] thds: 32 eps: 1693.14 lat (ms,95%): 29.72
+[2024-12-30 09:06:15] CPU speed:
+[2024-12-30 09:06:15]     events per second:  1663.19
+[2024-12-30 09:06:15] 
+[2024-12-30 09:06:15] General statistics:
+[2024-12-30 09:06:15]     total time:                          20.0118s
+[2024-12-30 09:06:15]     total number of events:              33287
+[2024-12-30 09:06:15] 
+[2024-12-30 09:06:15] Latency (ms):
+[2024-12-30 09:06:15]          min:                                    2.13
+[2024-12-30 09:06:15]          avg:                                   19.21
+[2024-12-30 09:06:15]          max:                                  231.83
+[2024-12-30 09:06:15]          95th percentile:                       29.72
+[2024-12-30 09:06:15]          sum:                               639541.03
+[2024-12-30 09:06:15] 
+[2024-12-30 09:06:15] Threads fairness:
+[2024-12-30 09:06:15]     events (avg/stddev):           1040.2188/345.47
+[2024-12-30 09:06:15]     execution time (avg/stddev):   19.9857/0.01
+[2024-12-30 09:06:15] 
+Sysbench completed successfully.
+Sysbench is running in the background with the following parameters: interval=20, threads=28 ...
+[2024-12-30 09:06:15] sysbench 1.0.20 (using system LuaJIT 2.1.1700206165)
+[2024-12-30 09:06:15] 
+[2024-12-30 09:06:15] Running the test with following options:
+[2024-12-30 09:06:15] Number of threads: 28
+[2024-12-30 09:06:15] Report intermediate results every 1 second(s)
+[2024-12-30 09:06:15] Initializing random number generator from current time
+[2024-12-30 09:06:15] 
+[2024-12-30 09:06:15] 
+[2024-12-30 09:06:15] Prime numbers limit: 10000
+[2024-12-30 09:06:15] 
+[2024-12-30 09:06:15] Initializing worker threads...
+[2024-12-30 09:06:15] 
+[2024-12-30 09:06:15] Threads started!
+[2024-12-30 09:06:15] 
+[2024-12-30 09:06:16] [ 1s ] thds: 28 eps: 1618.84 lat (ms,95%): 29.19
+[2024-12-30 09:06:17] [ 2s ] thds: 28 eps: 1690.97 lat (ms,95%): 27.66
+[2024-12-30 09:06:18] [ 3s ] thds: 28 eps: 1681.36 lat (ms,95%): 28.16
+[2024-12-30 09:06:19] [ 4s ] thds: 28 eps: 1765.68 lat (ms,95%): 28.16
+[2024-12-30 09:06:20] [ 5s ] thds: 28 eps: 1695.88 lat (ms,95%): 28.16
+[2024-12-30 09:06:21] [ 6s ] thds: 28 eps: 1687.63 lat (ms,95%): 28.16
+[2024-12-30 09:06:22] [ 7s ] thds: 28 eps: 1643.33 lat (ms,95%): 27.66
+[2024-12-30 09:06:23] [ 8s ] thds: 28 eps: 1683.81 lat (ms,95%): 28.16
+[2024-12-30 09:06:24] [ 9s ] thds: 28 eps: 1708.71 lat (ms,95%): 27.17
+[2024-12-30 09:06:25] [ 10s ] thds: 28 eps: 1715.68 lat (ms,95%): 27.17
+[2024-12-30 09:06:26] [ 11s ] thds: 28 eps: 1696.99 lat (ms,95%): 27.17
+[2024-12-30 09:06:27] [ 12s ] thds: 28 eps: 1671.89 lat (ms,95%): 27.66
+[2024-12-30 09:06:28] [ 13s ] thds: 28 eps: 1702.73 lat (ms,95%): 27.66
+[2024-12-30 09:06:29] [ 14s ] thds: 28 eps: 1702.58 lat (ms,95%): 27.66
+[2024-12-30 09:06:30] [ 15s ] thds: 28 eps: 1659.36 lat (ms,95%): 27.66
+[2024-12-30 09:06:31] [ 16s ] thds: 28 eps: 1696.62 lat (ms,95%): 27.17
+[2024-12-30 09:06:32] [ 17s ] thds: 28 eps: 1692.60 lat (ms,95%): 27.66
+[2024-12-30 09:06:33] [ 18s ] thds: 28 eps: 1681.21 lat (ms,95%): 27.17
+[2024-12-30 09:06:34] [ 19s ] thds: 28 eps: 1728.89 lat (ms,95%): 27.17
+[2024-12-30 09:06:35] [ 20s ] thds: 28 eps: 1675.35 lat (ms,95%): 28.16
+[2024-12-30 09:06:35] CPU speed:
+[2024-12-30 09:06:35]     events per second:  1690.68
+[2024-12-30 09:06:35] 
+[2024-12-30 09:06:35] General statistics:
+[2024-12-30 09:06:35]     total time:                          20.0103s
+[2024-12-30 09:06:35]     total number of events:              33836
+[2024-12-30 09:06:35] 
+[2024-12-30 09:06:35] Latency (ms):
+[2024-12-30 09:06:35]          min:                                    2.12
+[2024-12-30 09:06:35]          avg:                                   16.53
+[2024-12-30 09:06:35]          max:                                  243.02
+[2024-12-30 09:06:35]          95th percentile:                       27.66
+[2024-12-30 09:06:35]          sum:                               559363.13
+[2024-12-30 09:06:35] 
+[2024-12-30 09:06:35] Threads fairness:
+[2024-12-30 09:06:35]     events (avg/stddev):           1208.4286/231.24
+[2024-12-30 09:06:35]     execution time (avg/stddev):   19.9773/0.01
+[2024-12-30 09:06:35] 
+Sysbench completed successfully.
+Sysbench is running in the background with the following parameters: interval=20, threads=35 ...
+[2024-12-30 09:06:35] sysbench 1.0.20 (using system LuaJIT 2.1.1700206165)
+[2024-12-30 09:06:35] 
+[2024-12-30 09:06:35] Running the test with following options:
+[2024-12-30 09:06:35] Number of threads: 35
+[2024-12-30 09:06:35] Report intermediate results every 1 second(s)
+[2024-12-30 09:06:35] Initializing random number generator from current time
+[2024-12-30 09:06:35] 
+[2024-12-30 09:06:35] 
+[2024-12-30 09:06:35] Prime numbers limit: 10000
+[2024-12-30 09:06:35] 
+[2024-12-30 09:06:35] Initializing worker threads...
+[2024-12-30 09:06:35] 
+[2024-12-30 09:06:35] Threads started!
+[2024-12-30 09:06:35] 
+[2024-12-30 09:06:36] [ 1s ] thds: 35 eps: 1508.95 lat (ms,95%): 36.89
+[2024-12-30 09:06:37] [ 2s ] thds: 35 eps: 1540.49 lat (ms,95%): 35.59
+[2024-12-30 09:06:38] [ 3s ] thds: 35 eps: 1798.00 lat (ms,95%): 34.95
+[2024-12-30 09:06:39] [ 4s ] thds: 35 eps: 1712.88 lat (ms,95%): 34.95
+[2024-12-30 09:06:40] [ 5s ] thds: 35 eps: 1681.82 lat (ms,95%): 34.33
+[2024-12-30 09:06:41] [ 6s ] thds: 35 eps: 1601.10 lat (ms,95%): 36.89
+[2024-12-30 09:06:42] [ 7s ] thds: 35 eps: 1649.39 lat (ms,95%): 35.59
+[2024-12-30 09:06:43] [ 8s ] thds: 35 eps: 1652.26 lat (ms,95%): 35.59
+[2024-12-30 09:06:44] [ 9s ] thds: 35 eps: 1678.48 lat (ms,95%): 34.33
+[2024-12-30 09:06:45] [ 10s ] thds: 35 eps: 1667.71 lat (ms,95%): 34.95
+[2024-12-30 09:06:46] [ 11s ] thds: 35 eps: 1637.34 lat (ms,95%): 34.95
+[2024-12-30 09:06:47] [ 12s ] thds: 35 eps: 1646.97 lat (ms,95%): 35.59
+[2024-12-30 09:06:48] [ 13s ] thds: 35 eps: 1578.04 lat (ms,95%): 35.59
+[2024-12-30 09:06:49] [ 14s ] thds: 35 eps: 1521.90 lat (ms,95%): 37.56
+[2024-12-30 09:06:50] [ 15s ] thds: 35 eps: 1693.86 lat (ms,95%): 34.95
+[2024-12-30 09:06:51] [ 16s ] thds: 35 eps: 1690.49 lat (ms,95%): 35.59
+[2024-12-30 09:06:52] [ 17s ] thds: 35 eps: 1640.03 lat (ms,95%): 36.24
+[2024-12-30 09:06:53] [ 18s ] thds: 35 eps: 1651.55 lat (ms,95%): 34.33
+[2024-12-30 09:06:54] [ 19s ] thds: 35 eps: 1651.10 lat (ms,95%): 34.33
+[2024-12-30 09:06:55] [ 20s ] thds: 35 eps: 1700.11 lat (ms,95%): 34.33
+[2024-12-30 09:06:55] CPU speed:
+[2024-12-30 09:06:55]     events per second:  1644.22
+[2024-12-30 09:06:55] 
+[2024-12-30 09:06:55] General statistics:
+[2024-12-30 09:06:55]     total time:                          20.0129s
+[2024-12-30 09:06:55]     total number of events:              32909
+[2024-12-30 09:06:55] 
+[2024-12-30 09:06:55] Latency (ms):
+[2024-12-30 09:06:55]          min:                                    1.64
+[2024-12-30 09:06:55]          avg:                                   21.25
+[2024-12-30 09:06:55]          max:                                  510.61
+[2024-12-30 09:06:55]          95th percentile:                       35.59
+[2024-12-30 09:06:55]          sum:                               699186.97
+[2024-12-30 09:06:55] 
+[2024-12-30 09:06:55] Threads fairness:
+[2024-12-30 09:06:55]     events (avg/stddev):           940.2571/23.83
+[2024-12-30 09:06:55]     execution time (avg/stddev):   19.9768/0.02
+[2024-12-30 09:06:55] 
+Sysbench completed successfully.
+Sysbench is running in the background with the following parameters: interval=20, threads=27 ...
+[2024-12-30 09:06:55] sysbench 1.0.20 (using system LuaJIT 2.1.1700206165)
+[2024-12-30 09:06:55] 
+[2024-12-30 09:06:55] Running the test with following options:
+[2024-12-30 09:06:55] Number of threads: 27
+[2024-12-30 09:06:55] Report intermediate results every 1 second(s)
+[2024-12-30 09:06:55] Initializing random number generator from current time
+[2024-12-30 09:06:55] 
+[2024-12-30 09:06:55] 
+[2024-12-30 09:06:55] Prime numbers limit: 10000
+[2024-12-30 09:06:55] 
+[2024-12-30 09:06:55] Initializing worker threads...
+[2024-12-30 09:06:55] 
+[2024-12-30 09:06:55] Threads started!
+[2024-12-30 09:06:55] 
+[2024-12-30 09:06:56] [ 1s ] thds: 27 eps: 1522.03 lat (ms,95%): 28.67
+[2024-12-30 09:06:57] [ 2s ] thds: 27 eps: 1643.09 lat (ms,95%): 27.66
+[2024-12-30 09:06:58] [ 3s ] thds: 27 eps: 1654.00 lat (ms,95%): 27.66
+[2024-12-30 09:06:59] [ 4s ] thds: 27 eps: 1711.12 lat (ms,95%): 27.17
+[2024-12-30 09:07:00] [ 5s ] thds: 27 eps: 1682.18 lat (ms,95%): 27.17
+[2024-12-30 09:07:01] [ 6s ] thds: 27 eps: 1647.52 lat (ms,95%): 27.66
+[2024-12-30 09:07:02] [ 7s ] thds: 27 eps: 1709.08 lat (ms,95%): 26.68
+[2024-12-30 09:07:03] [ 8s ] thds: 27 eps: 1672.58 lat (ms,95%): 27.17
+[2024-12-30 09:07:04] [ 9s ] thds: 27 eps: 1687.84 lat (ms,95%): 26.68
+[2024-12-30 09:07:05] [ 10s ] thds: 27 eps: 1657.04 lat (ms,95%): 27.17
+[2024-12-30 09:07:06] [ 11s ] thds: 27 eps: 1673.26 lat (ms,95%): 27.66
+[2024-12-30 09:07:07] [ 12s ] thds: 27 eps: 1646.79 lat (ms,95%): 28.16
+[2024-12-30 09:07:08] [ 13s ] thds: 27 eps: 1683.88 lat (ms,95%): 26.68
+[2024-12-30 09:07:09] [ 14s ] thds: 27 eps: 1656.90 lat (ms,95%): 27.66
+[2024-12-30 09:07:10] [ 15s ] thds: 27 eps: 1644.21 lat (ms,95%): 27.66
+[2024-12-30 09:07:11] [ 16s ] thds: 27 eps: 1660.15 lat (ms,95%): 27.66
+[2024-12-30 09:07:12] [ 17s ] thds: 27 eps: 1601.06 lat (ms,95%): 27.66
+[2024-12-30 09:07:13] [ 18s ] thds: 27 eps: 1647.61 lat (ms,95%): 27.66
+[2024-12-30 09:07:14] [ 19s ] thds: 27 eps: 1630.43 lat (ms,95%): 27.66
+[2024-12-30 09:07:15] CPU speed:
+[2024-12-30 09:07:15]     events per second:  1654.25
+[2024-12-30 09:07:15] 
+[2024-12-30 09:07:15] General statistics:
+[2024-12-30 09:07:15]     total time:                          20.0112s
+[2024-12-30 09:07:15]     total number of events:              33107
+[2024-12-30 09:07:15] 
+[2024-12-30 09:07:15] Latency (ms):
+[2024-12-30 09:07:15]          min:                                    4.01
+[2024-12-30 09:07:15]          avg:                                   16.30
+[2024-12-30 09:07:15]          max:                                  252.42
+[2024-12-30 09:07:15]          95th percentile:                       27.66
+[2024-12-30 09:07:15]          sum:                               539622.13
+[2024-12-30 09:07:15] 
+[2024-12-30 09:07:15] Threads fairness:
+[2024-12-30 09:07:15]     events (avg/stddev):           1226.1852/62.55
+[2024-12-30 09:07:15]     execution time (avg/stddev):   19.9860/0.01
+[2024-12-30 09:07:15] 
+Sysbench completed successfully.
+Sysbench is running in the background with the following parameters: interval=20, threads=4 ...
+[2024-12-30 09:07:16] sysbench 1.0.20 (using system LuaJIT 2.1.1700206165)
+[2024-12-30 09:07:16] 
+[2024-12-30 09:07:16] Running the test with following options:
+[2024-12-30 09:07:16] Number of threads: 4
+[2024-12-30 09:07:16] Report intermediate results every 1 second(s)
+[2024-12-30 09:07:16] Initializing random number generator from current time
+[2024-12-30 09:07:16] 
+[2024-12-30 09:07:16] 
+[2024-12-30 09:07:16] Prime numbers limit: 10000
+[2024-12-30 09:07:16] 
+[2024-12-30 09:07:16] Initializing worker threads...
+[2024-12-30 09:07:16] 
+[2024-12-30 09:07:16] Threads started!
+[2024-12-30 09:07:16] 
+[2024-12-30 09:07:35] CPU speed:
+[2024-12-30 09:07:35]     events per second:  2429.99
+[2024-12-30 09:07:35] 
+[2024-12-30 09:07:35] General statistics:
+[2024-12-30 09:07:35]     total time:                          20.0026s
+[2024-12-30 09:07:35]     total number of events:              48611
+[2024-12-30 09:07:35] 
+[2024-12-30 09:07:35] Latency (ms):
+[2024-12-30 09:07:35]          min:                                    1.33
+[2024-12-30 09:07:35]          avg:                                    1.64
+[2024-12-30 09:07:35]          max:                                   49.93
+[2024-12-30 09:07:35]          95th percentile:                        2.11
+[2024-12-30 09:07:35]          sum:                                79959.92
+[2024-12-30 09:07:35] 
+[2024-12-30 09:07:35] Threads fairness:
+[2024-12-30 09:07:35]     events (avg/stddev):           12152.7500/949.23
+[2024-12-30 09:07:35]     execution time (avg/stddev):   19.9900/0.00
+[2024-12-30 09:07:35] 
+Sysbench completed successfully.

@@ -25,6 +25,7 @@ sim_started = False
 total_cpu = len(utils.get_cpu_list())
 vm_migration = False
 log_file = "cores_log"
+sched = "ufo"
 
 # allows a thread to retrieve data that is meant for it
 def get_reader_cv_data(cid, req_key):
@@ -101,6 +102,7 @@ def adjust_pcpu_to_vm_mapping():
     global sim_started
     global total_cpu
     global vm_migration
+    global sched
 
     cpu_list = utils.get_cpu_list()
     if vm_migration:
@@ -178,14 +180,37 @@ def adjust_pcpu_to_vm_mapping():
 def simulate_cores(cores):
     global total_cpu
     global vm_migration
+    global sched
+
     print(f"Starting simulate cores and cores is none: {cores is None}")
-    if cores is None:
+    if cores is None or sched == "rorke":
         return 
     for slice in cores:
         time.sleep(slice["time"])
         if vm_migration:
             total_cpu = slice["pcpu"]
-    
+
+def simulate_vcpu_cores(cores):
+    global vm_migration
+    global sched 
+
+    if cores is None or vm_migration != True or sched != "rorke":
+        return
+    print("starting simulate_vcpu_cores")
+
+    for slice in cores:
+        time.sleep(slice["time"])
+        msg1 = { "vcpu_cnt_request": slice["35"] }
+        msg2 = { "vcpu_cnt_request": slice["36"] }
+
+        conns[35].sendall(json.dumps(msg1).encode())
+        conns[36].sendall(json.dumps(msg2).encode())
+
+        resp_35 = get_reader_cv_data(35, "vcpu_ids")
+        resp_36 = get_reader_cv_data(36, "vcpu_ids")
+
+        print("vcpu_modification rorke 35", resp_35)
+        print("vcpu_modification rorke 36", resp_36)
 
 # Only for UFO! Adjust number of vcpus to match pcpu and then apply cpu pinning. Note UFO's assumption is that 1 vcpu maps to 1 cpu.
 def apply_vcpu_pinning():
@@ -323,6 +348,8 @@ def adjust_workload(max_threads, percentage_load, interval, cid, cores = None, w
 
 def sim_workload(max_threads, slices, cid):
     global vm_migration
+    global sched 
+
     for slice in slices:
         if slice["type"] == "repeater":
             cnt = slice["cnt"]
@@ -334,6 +361,10 @@ def sim_workload(max_threads, slices, cid):
                 print(f"cores is not None")
             workload = slice.get("workload", "sysbench")
             print(f"workload is {workload}")
+            if vm_migration and sched == "rorke" and cores is not None:
+                print("triggered simulate_vcpu_cores thread")
+                vcpu_thread = threading.Thread(target=simulate_vcpu_cores, args=(cores,))
+                vcpu_thread.start()
             adjust_workload(max_threads, slice["percentage_load"], slice["interval"], cid, cores, workload)
 
 
@@ -390,6 +421,7 @@ if __name__ == "__main__":
 
         expected_vms = [c["vm_cid"] for c in config]
         vm_migration = vm_migration or any(vm.get("vm_migration", False) for vm in config)
+        sched = args.sched
         print(f"vm_migration flag set to : {vm_migration}")
         while True:
             print("still waiting for guest vm(s)...")
@@ -408,15 +440,12 @@ if __name__ == "__main__":
             print(f"guest {remote_cid} has connected")
             if len(expected_vms) == 0:
                 break
-       
+        
         if args.sched == "ufo":
             adjust_pcpu_to_vm_mapping()
             apply_vcpu_pinning()
             print(f"runtime_vm_configs (before simulation starts): {runtime_vm_configs}")
             sim_started = True
-        
-        if args.sched != "ufo":
-            vm_migration = False
         
         for t in client_sim_threads:
             t.start()
