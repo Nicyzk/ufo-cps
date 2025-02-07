@@ -1,0 +1,38 @@
+Sysbench is running in the background with the following parameters: interval=5, threads=40 ...
+[2024-12-26 21:13:11] sysbench 1.0.20 (using system LuaJIT 2.1.1700206165)
+[2024-12-26 21:13:11] 
+[2024-12-26 21:13:11] Running the test with following options:
+[2024-12-26 21:13:11] Number of threads: 40
+[2024-12-26 21:13:11] Report intermediate results every 1 second(s)
+[2024-12-26 21:13:11] Initializing random number generator from current time
+[2024-12-26 21:13:11] 
+[2024-12-26 21:13:11] 
+[2024-12-26 21:13:11] Prime numbers limit: 10000
+[2024-12-26 21:13:11] 
+[2024-12-26 21:13:11] Initializing worker threads...
+[2024-12-26 21:13:11] 
+[2024-12-26 21:13:11] Threads started!
+[2024-12-26 21:13:11] 
+[2024-12-26 21:13:12] [ 1s ] thds: 40 eps: 2452.23 lat (ms,95%): 52.89
+[2024-12-26 21:13:13] [ 2s ] thds: 40 eps: 2543.02 lat (ms,95%): 49.21
+[2024-12-26 21:13:14] [ 3s ] thds: 40 eps: 2673.80 lat (ms,95%): 44.98
+[2024-12-26 21:13:15] [ 4s ] thds: 40 eps: 2660.15 lat (ms,95%): 49.21
+[2024-12-26 21:13:16] CPU speed:
+[2024-12-26 21:13:16]     events per second:  2610.08
+[2024-12-26 21:13:16] 
+[2024-12-26 21:13:16] General statistics:
+[2024-12-26 21:13:16]     total time:                          5.0052s
+[2024-12-26 21:13:16]     total number of events:              13069
+[2024-12-26 21:13:16] 
+[2024-12-26 21:13:16] Latency (ms):
+[2024-12-26 21:13:16]          min:                                    1.28
+[2024-12-26 21:13:16]          avg:                                   15.24
+[2024-12-26 21:13:16]          max:                                 2848.99
+[2024-12-26 21:13:16]          95th percentile:                       49.21
+[2024-12-26 21:13:16]          sum:                               199116.07
+[2024-12-26 21:13:16] 
+[2024-12-26 21:13:16] Threads fairness:
+[2024-12-26 21:13:16]     events (avg/stddev):           326.7250/110.11
+[2024-12-26 21:13:16]     execution time (avg/stddev):   4.9779/0.02
+[2024-12-26 21:13:16] 
+Sysbench completed successfully.

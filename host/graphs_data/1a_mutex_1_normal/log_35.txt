@@ -1,0 +1,13 @@
+Sysbench is running in the background with the following parameters: interval=120, threads=40 ...
+stress-ng: info:  [2248] setting to a 2 mins run per stressor
+stress-ng: info:  [2248] dispatching hogs: 40 mutex
+stress-ng: info:  [2248] note: /proc/sys/kernel/sched_autogroup_enabled is 1 and this can impact scheduling throughput for processes not attached to a tty. Setting this to 0 may improve performance metrics
+stress-ng: metrc: [2248] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
+stress-ng: metrc: [2248]                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+stress-ng: metrc: [2248] mutex          14207667    120.26    109.05    352.44    118139.81       30786.25
+stress-ng: info:  [2248] skipped: 0
+stress-ng: info:  [2248] passed: 40: mutex (40)
+stress-ng: info:  [2248] failed: 0
+stress-ng: info:  [2248] metrics untrustworthy: 0
+stress-ng: info:  [2248] successful run completed in 2 mins, 1.43 sec
+Sysbench completed successfully.
