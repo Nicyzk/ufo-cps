@@ -44,7 +44,7 @@ dir_path = os.path.expanduser("~/experiment1-sriov-rorke-time/")
 os.makedirs(dir_path, exist_ok=True)
 
 # rates = [25, 50, 100, 150, 200, 400, 500, 600]
-rates = [25]
+rates = [50, 250]
 
 for i in rates:
     # Construct file paths
@@ -58,7 +58,7 @@ for i in rates:
     # Run memtier_benchmark
 
     memtier_cmd = f"memtier_benchmark -h 128.110.218.200 -p 11211 --ratio=1:10 --test-time=30 --rate-limiting={i*5} -t 8 -c 25 --key-pattern=P:P --key-maximum 1000000 -P memcache_text >> {memtier_file}"
-    subprocess.run(f"echo Executing: {memtier_cmd} >> {memtier_file}", shell=True, check=True)
+    subprocess.run(f"echo Executing: {memtier_cmd} >> {memtier_file}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
     print(f"Running: {memtier_cmd}")
     subprocess.run(memtier_cmd, shell=True, check=True)
 
@@ -67,7 +67,7 @@ for i in rates:
 
     # Run mutated_memcache
     mutated_cmd = f"~/mutated/client/mutated_memcache 128.110.218.200:11211 {i*1000} >> {mutated_file}"
-    subprocess.run(f"echo Executing: {mutated_cmd} >> {mutated_file}", shell=True, check=True)
+    subprocess.run(f"echo Executing: {mutated_cmd} >> {mutated_file}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,  check=True)
     print(f"Running: {mutated_cmd}")
     subprocess.run(mutated_cmd, shell=True, check=True)
 
