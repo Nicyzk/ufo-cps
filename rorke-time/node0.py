@@ -5,8 +5,8 @@ import subprocess
 import signal
 import time
 
-time_slices = [100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1250, 1500, 1750, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
-# time_slices = [75, 100]
+# time_slices = [25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1250, 1500, 1750, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
+time_slices = [2000, 2500, 3000, 3500, 4000, 45000, 5000]
 scheduler_process = None
 
 def run_rorke(time_slice):
@@ -46,7 +46,7 @@ def pin_to_cpu(cpu_id):
 
 def send_instruction(server_ip, port, time_slice):
     # Note: make sure run.py saves to the correct directory first
-    command = f"python3 run.py rorke{time_slice}"
+    command = f"python3 mem_run.py rorke{time_slice}"
     message = json.dumps({"command": command})
     print(f"sending message to server: {message}")
 
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     for t in time_slices:
         scheduler_process = run_rorke(t)
         try:
-            send_instruction("128.110.218.158", 5000, t)
+            send_instruction("128.110.218.125", 5000, t)
         except Exception as e:
             print(f"Error in sending instruction: {e}")
         finally:
