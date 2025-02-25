@@ -1,0 +1,13 @@
+Executing: /users/nzy2000/mutated/client/mutated_memcache 128.110.218.200:11211 250000
+#reqs/s: hit		target
+         115130.881010	250000.000000	
+
+service: min	avg		std	50th	99th	99.9th	max
+         9198	4697470.928823	3044336.673832	4367081	10717756	10909196	10978239
+
+ buffer: min	avg		std	50th	99th	99.9th	max
+         0	5.168566	36.071500	4	45	90	9916
+
+RX: 3.62 MB/s (78.68 MB)
+TX: 5.93 MB/s (128.75 MB)
+Missed sends: 5000892 / 5002072 (99.9764%)
