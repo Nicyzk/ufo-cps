@@ -16,7 +16,7 @@ def run_experiment(output_dir, base_command, rates, sched, num_runs=5):
         run_results = []
 
         for run_id in range(1, num_runs + 1):
-            run_file = os.path.join(raw_dir, f"sched_silo-rate-{rate}_run-{run_id}.txt")
+            run_file = os.path.join(raw_dir, f"sched-{sched}_silo-rate-{rate}_run-{run_id}.txt")
             command = f"{base_command} --poisson-rate {rate}"
 
             with open(run_file, "w") as f:
