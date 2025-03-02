@@ -5,4 +5,4 @@ git add .
 git commit -m "Auto-commit experiment results"
 git push
 
-sleep(5)
+sleep 5
