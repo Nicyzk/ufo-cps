@@ -1,17 +1,17 @@
 allocator::Initialize()
   hugepgsize: 2097152
   use MADV_WILLNEED: 1
-  mmap() region [0x7fcecb1ff000, 0x7fcfcb3ff000)
-cpu0 owns [0x7fcecb200000, 0x7fceeb200000)
-cpu1 owns [0x7fceeb200000, 0x7fcf0b200000)
-cpu2 owns [0x7fcf0b200000, 0x7fcf2b200000)
-cpu3 owns [0x7fcf2b200000, 0x7fcf4b200000)
-cpu4 owns [0x7fcf4b200000, 0x7fcf6b200000)
-cpu5 owns [0x7fcf6b200000, 0x7fcf8b200000)
-cpu6 owns [0x7fcf8b200000, 0x7fcfab200000)
-cpu7 owns [0x7fcfab200000, 0x7fcfcb200000)
+  mmap() region [0x7fdd325ff000, 0x7fde327ff000)
+cpu0 owns [0x7fdd32600000, 0x7fdd52600000)
+cpu1 owns [0x7fdd52600000, 0x7fdd72600000)
+cpu2 owns [0x7fdd72600000, 0x7fdd92600000)
+cpu3 owns [0x7fdd92600000, 0x7fddb2600000)
+cpu4 owns [0x7fddb2600000, 0x7fddd2600000)
+cpu5 owns [0x7fddd2600000, 0x7fddf2600000)
+cpu6 owns [0x7fddf2600000, 0x7fde12600000)
+cpu7 owns [0x7fde12600000, 0x7fde32600000)
 Database Benchmark:
-  pid: 15742
+  pid: 17050
 settings:
   rate        : 10000
   par-loading : 0
@@ -21,7 +21,7 @@ settings:
   backoff-txns: 0
   bench       : tpcc
   scale       : 1
-  num-cpus    : 4
+  num-cpus    : 8
   num-threads : 8
   db-type     : ndb-proto2
   basedir     : /home/nic/ufo-cps/rorke-time
@@ -50,15 +50,15 @@ tpcc settings:
   uniform_item_dist            : 0
   order_status_scan_hack       : 0
   workload_mix                 : [45, 43, 4, 4, 4]
-PinToWarehouseId(): coreid=PinToWarehouseId(): coreid=3 pinned to whse=1 (partid=60) pinned to whse=num batches: 1 (partid=0)
-
-30
-PinToWarehouseId(): coreid=5 pinned to whse=1cpu0 starting faulting region (536870912 bytes / 256 hugepgs)
- (partid=0)
+PinToWarehouseId(): coreid=6 pinned to whse=1 (partid=0)
+num batches: 30
+PinToWarehouseId(): coreid=5 pinned to whse=1 (partid=0)
+PinToWarehouseId(): coreid=3 pinned to whse=1 (partid=0)
 PinToWarehouseId(): coreid=4 pinned to whse=1 (partid=0)
+cpu0 starting faulting region (536870912 bytes / 256 hugepgs)
 [INFO] finished loading warehouse
 [INFO]   * average warehouse record length: 97 bytes
-cpu0 finished faulting region in 154.694 ms
+cpu0 finished faulting region in 179.409 ms
 [INFO] finished loading district
 [INFO]   * average district record length: 99 bytes
 [INFO] finished loading order
@@ -71,8 +71,8 @@ cpu0 finished faulting region in 154.694 ms
 [INFO]   * average customer record length: 656.725 bytes 
 [INFO] finished loading stock
 [INFO]   * average stock record length: 8 bytes
-timed region dataloading took 4471.06 ms
-DB size: 41.6445 MB
+timed region dataloading took 1745.05 ms
+DB size: 39.7617 MB
 wait_an_epoch(): consistent reads happening in e-1: 0
 [0, 0, 0] txns persisted in loading phase
 table customer_0 size 30000
@@ -96,58 +96,66 @@ tpcc: worker id 12 => warehouses [1, 2)
 tpcc: worker id 13 => warehouses [1, 2)
 tpcc: worker id 14 => warehouses [1, 2)
 tpcc: worker id 15 => warehouses [1, 2)
-cpu1 starting faulting region (536870912 bytes / 256 hugepgs)
-cpu3 starting faulting region (536870912 bytes / 256 hugepgs)
 cpu2 starting faulting region (536870912 bytes / 256 hugepgs)
-cpu1 finished faulting region in 248.647 ms
-cpu3 finished faulting region in 253.263 ms
-cpu2 finished faulting region in 267.689 ms
+cpu3 starting faulting region (536870912 bytes / 256 hugepgs)
+cpu4 starting faulting region (536870912 bytes / 256 hugepgs)
+cpu1 starting faulting region (536870912 bytes / 256 hugepgs)
+cpu6 starting faulting region (536870912 bytes / 256 hugepgs)
+cpu5 starting faulting region (536870912 bytes / 256 hugepgs)
+cpu7 starting faulting region (536870912 bytes / 256 hugepgs)
+cpu2 finished faulting region in 341.73 ms
+cpu5 finished faulting region in 365.932 ms
+cpu3 finished faulting region in 399.295 ms
+cpu1 finished faulting region in 416.512 ms
+cpu4 finished faulting region in 440.625 ms
+cpu6 finished faulting region in 514.472 ms
+cpu7 finished faulting region in 569.089 ms
 --- table statistics ---
 table customer_0 size 30000 (+0 records)
 table customer_name_idx_0 size 30000 (+0 records)
 table district_0 size 10 (+0 records)
-table history_0 size 914335 (+884335 records)
+table history_0 size 815752 (+785752 records)
 table item_0 size 100000 (+0 records)
-table new_order_0 size 621930 (+612930 records)
-table oorder_0 size 642930 (+612930 records)
-table oorder_c_id_idx_0 size 642930 (+612930 records)
-table order_line_0 size 6219782 (+5920222 records)
+table new_order_0 size 406607 (+397607 records)
+table oorder_0 size 427607 (+397607 records)
+table oorder_c_id_idx_0 size 427607 (+397607 records)
+table order_line_0 size 3995832 (+3696272 records)
 table stock_0 size 100000 (+0 records)
 table stock_data_0 size 100000 (+0 records)
 table warehouse_0 size 1 (+0 records)
-latency data points: 1748834
-p99 index: 1731345
+latency data points: 1417797
+p99 index: 1403619
 --- benchmark statistics ---
-runtime: 30.0013 sec
-memory delta: 162.883 MB
-memory delta rate: 5.42919 MB/sec
-logical memory delta: 92.9414 MB
-logical memory delta rate: 3.09791 MB/sec
-agg_nosync_throughput: 58291.9 ops/sec
-avg_nosync_per_core_throughput: 7286.49 ops/sec/core
-agg_throughput: 58291.9 ops/sec
-avg_per_core_throughput: 7286.49 ops/sec/core
-agg_persist_throughput: 58291.9 ops/sec
-avg_per_core_persist_throughput: 7286.49 ops/sec/core
-avg_latency: 279.299 ms
-p99_latency (end_to_end): 2082.95 ms
+runtime: 30.0022 sec
+memory delta: 204.75 MB
+memory delta rate: 6.82451 MB/sec
+logical memory delta: 64.9996 MB
+logical memory delta rate: 2.1665 MB/sec
+agg_nosync_throughput: 47256.5 ops/sec
+avg_nosync_per_core_throughput: 5907.06 ops/sec/core
+agg_throughput: 47256.5 ops/sec
+avg_per_core_throughput: 5907.06 ops/sec/core
+agg_persist_throughput: 47256.5 ops/sec
+avg_per_core_persist_throughput: 5907.06 ops/sec/core
+avg_latency: 9.74956 ms
+p99_latency (end_to_end): 84.3521 ms
 avg_persist_latency: 0 ms
-agg_abort_rate: 20236.4 aborts/sec
-avg_per_core_abort_rate: 2529.55 aborts/sec/core
-txn breakdown: [[Delivery, 93688], [NewOrder, 1060622], [OrderStatus, 94662], [Payment, 1012529], [StockLevel, 94453]]
+agg_abort_rate: 32743.5 aborts/sec
+avg_per_core_abort_rate: 4092.93 aborts/sec/core
+txn breakdown: [[Delivery, 96230], [NewOrder, 1079639], [OrderStatus, 95882], [Payment, 1032221], [StockLevel, 96199]]
 --- system counters (for benchmark) ---
 --- perf counters (if enabled, for benchmark) ---
 --- allocator stats ---
 [allocator] ncpus=8
-[allocator] cpu=0 fully_faulted?=1 remaining=171966464 bytes
-[allocator] cpu=1 fully_faulted?=1 remaining=268435456 bytes
-[allocator] cpu=2 fully_faulted?=1 remaining=268435456 bytes
-[allocator] cpu=3 fully_faulted?=1 remaining=264241152 bytes
-[allocator] cpu=4 fully_faulted?=0 remaining=536870912 bytes
-[allocator] cpu=5 fully_faulted?=0 remaining=536870912 bytes
-[allocator] cpu=6 fully_faulted?=0 remaining=536870912 bytes
-[allocator] cpu=7 fully_faulted?=0 remaining=536870912 bytes
+[allocator] cpu=0 fully_faulted?=1 remaining=310378496 bytes
+[allocator] cpu=1 fully_faulted?=1 remaining=404750336 bytes
+[allocator] cpu=2 fully_faulted?=1 remaining=404750336 bytes
+[allocator] cpu=3 fully_faulted?=1 remaining=404750336 bytes
+[allocator] cpu=4 fully_faulted?=1 remaining=404750336 bytes
+[allocator] cpu=5 fully_faulted?=1 remaining=404750336 bytes
+[allocator] cpu=6 fully_faulted?=1 remaining=404750336 bytes
+[allocator] cpu=7 fully_faulted?=1 remaining=404750336 bytes
 ---------------------------------------
 dumping heap profile...
 printing jemalloc stats...
-58291.9 58291.9 279.299 0 20236.4
+47256.5 47256.5 9.74956 0 32743.5
