@@ -6,7 +6,7 @@ import signal
 import time
 
 # time_slices = [25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1250, 1500, 1750, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
-time_slices = [2000, 2500, 3000, 3500, 4000, 45000, 5000]
+time_slices = [25]
 scheduler_process = None
 
 def run_rorke(time_slice):
@@ -44,9 +44,8 @@ def pin_to_cpu(cpu_id):
     except AttributeError:
         print("CPU pinning not supported on this system.")
 
-def send_instruction(server_ip, port, time_slice):
+def send_instruction(server_ip, port, command):
     # Note: make sure run.py saves to the correct directory first
-    command = f"python3 mem_run.py rorke{time_slice}"
     message = json.dumps({"command": command})
     print(f"sending message to server: {message}")
 
@@ -66,8 +65,13 @@ if __name__ == "__main__":
     for t in time_slices:
         scheduler_process = run_rorke(t)
         try:
-            send_instruction("128.110.218.125", 5000, t)
+            command = f"python3 ~/ufo-cps/rorke-time/silo_run.py --output_dir silo_rorke_time_2 --num_threads 8 --sched rorke-{t} --rates 1000,10000"
+            send_instruction("192.168.122.250", 5000, command)
         except Exception as e:
             print(f"Error in sending instruction: {e}")
         finally:
             cancel_rorke(scheduler_process)  # ✅ Always runs, even if send_instruction() fails
+    try:
+        send_instruction("192.168.122.250", 5000, "~/ufo-cps/rorke-time/auto_commit.sh")
+    except Exception as e:
+        print(f"Failed to push to github")
